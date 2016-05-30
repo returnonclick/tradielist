@@ -538,7 +538,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'label'   => __( 'Navy', 'listable' ),
 							'preview' => array(
 								'color-text'       => '#ffffff',
-								'background-card'  => '#001f63',
+								'background-card'  => '#64a97b',  /*  old color #001f63  */
 								'background-label' => '#3a3a3a',
 								'font-main'        => 'Vidaloka',
 								'font-alt'         => 'Lato',
@@ -549,9 +549,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								// Site Header
 								'header_transparent'          => true,
 								'header_background_color'     => '#ffffff',
-								'site_title_color'            => '#001f63',
+								'site_title_color'            => '#64a97b',  /*  old color #001f63  */
 								'search_color'                => '#3a3a3a',
-								'nav_link_color'              => '#001f63',
+								'nav_link_color'              => '#64a97b',  /*  old color #001f63  */
 								'nav_active_color'            => '#4a5463',
 								'nav_button_color'            => '#000000',
 
@@ -567,13 +567,13 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'cards_background'            => '#ffffff',
 								'cards_radius'                => '6',
 								'thumbs_radius'               => '6',
-								'cards_title_color'           => '#001f63',
+								'cards_title_color'           => '#64a97b',  /*  old color #001f63  */
 								'cards_text_color'            => '#666666',
-								'cards_icon_color'            => '#001f63',
-								'cards_icon_border_color'     => '#001f63',
+								'cards_icon_color'            => '#64a97b',  /*  old color #001f63  */
+								'cards_icon_border_color'     => '#64a97b',  /*  old color #001f63  */
 								'cards_icon_background_color' => '#ffffff',
 								'pin_background_color'        => '#ffffff',
-								'pin_icon_color'              => '#001f63',
+								'pin_icon_color'              => '#64a97b',  /*  old color #001f63  */
 
 								// Pre Footer
 								'prefooter_background'        => '#002847',
@@ -585,7 +585,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'footer_credits_color'        => '#c1c1c1',
 
 								// Other Colors
-								'accent_color'                => '#001f63',
+								'accent_color'                => '#64a97b',  /*  old color #001f63  */
 								'fields_color'                => '#848484',
 								'micro_color'                 => '#000000',
 
@@ -664,7 +664,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'footer_credits_color'        => '#0c0c0c',
 
 								// Other Colors
-								'accent_color'                => '#001f63',
+								'accent_color'                => '#64a97b',  /*  old color #001f63  */
 								'fields_color'                => '#848484',
 								'micro_color'                 => '#000000',
 
@@ -1447,6 +1447,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover,
 													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus,
 													.package__btn.package__btn:hover,
+													.job_listing_preview_title input[name="edit_job"],
 													.nav-links a:hover, .site-footer a:hover, .facetwp-pager a:hover,
 													.facetwp-pager a.first-page:hover:before, .facetwp-pager a.first-page:hover:after,
 													.facetwp-pager a.last-page:hover:before, .facetwp-pager a.last-page:hover:after,
@@ -1459,7 +1460,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 													.page-template-front_page .pac-container .pac-item:hover,
 													.page-template-front_page .search_jobs--frontpage .search-submit,
 													.facetwp-type-slider .noUi-connect,
-													.card__featured-tag, .woocommerce-message',
+													.card__featured-tag, .woocommerce-message,
+													.secondary-menu:before, .secondary-menu:after',
+									// 'selector' => '.secondary-menu, .secondary-menu:before, .secondary-menu:after, .product__remove',
 								),
 								array(
 									'property' => 'background',
@@ -1674,6 +1677,8 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'             => 'typography',
 							'label'            => esc_html__( 'Navigation Text', 'listable' ),
 							'selector'         => '.primary-menu > ul, ul.primary-menu a',
+							'selector'         => '.primary-menu > ul, ul.primary-menu,
+									.search-suggestions-menu li a',
 							'load_all_weights' => false,
 							'subsets'          => false,
 							'default'          => array( 'Hanken', '400' ),
@@ -1811,9 +1816,15 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'selector'         => '.intro,
 									.description,
 									.tabs.wc-tabs,
+									.btn,
+									input[type="submit"],
+									.page-template-front_page .search-form .search-submit,
 									.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a,
+									.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"],
+									.woocommerce .button,
 									.widget_subtitle--frontpage,
 									.category-list a,
+									.search-form .search-field,
 									.single:not(.single-job_listing) .entry-subtitle,
 									.page .entry-subtitle,
 									.single-job_listing .entry-subtitle',
