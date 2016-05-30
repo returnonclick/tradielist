@@ -20,7 +20,7 @@ class PixCustomifyPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '1.2.2';
+	protected $version = '1.2.3';
 	/**
 	 * Unique identifier for your plugin.
 	 * Use this value (not the variable name) as the text domain when internationalizing strings of text. It should
@@ -140,10 +140,6 @@ class PixCustomifyPlugin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		// Load public-facing style sheet and JavaScript.
-//		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 99999999999 );
-//		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
 //		add_action( 'plugins_loaded', array( $this, 'register_metaboxes' ), 14 );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_customizer_styles' ), 10 );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_customizer_scripts' ), 10 );
@@ -210,6 +206,13 @@ class PixCustomifyPlugin {
 		self::get_current_values();
 		self::$options_list = $this->get_options();
 
+		if ( $this->import_button_exists() ) {
+			self::$opt_name = self::$localized['import_rest_url'] = get_rest_url( '/customify/1.0/' );
+			self::$opt_name = self::$localized['import_rest_nonce'] = wp_create_nonce( 'wp_rest' );
+
+			$this->register_import_api();
+		}
+
 		// load custom modules
 		include_once( self::get_base_path() . '/features/class-CSS_Editor.php' );
 	}
@@ -241,7 +244,7 @@ class PixCustomifyPlugin {
 		}
 	}
 
-	protected function get_options() {
+	public function get_options() {
 
 		$settings = array();
 
@@ -419,13 +422,16 @@ class PixCustomifyPlugin {
 	function enqueue_admin_customizer_scripts() {
 
 		wp_enqueue_script( 'select2', plugins_url( 'js/select2/select2.js', __FILE__ ), array( 'jquery' ), $this->version );
+		wp_enqueue_script( 'jquery-react', plugins_url( 'js/jquery-react.js', __FILE__ ), array( 'jquery' ), $this->version );
 		wp_enqueue_script( $this->plugin_slug . '-customizer-scripts', plugins_url( 'js/customizer.js', __FILE__ ), array(
 			'jquery',
 			'select2'
 		), $this->version );
 
 		wp_localize_script( $this->plugin_slug . '-customizer-scripts', 'customify_settings', self::$localized );
+
 	}
+
 
 	/** Customizer scripts loaded only on previewer page */
 	function customizer_live_preview_enqueue_scripts() {
@@ -479,6 +485,9 @@ class PixCustomifyPlugin {
 				'ajax_url' => admin_url( 'admin-ajax.php' )
 			) );
 		}
+
+
+		wp_localize_script( $this->plugin_slug . '-customizer-scripts', 'WP_API_Settings', array( 'root' => esc_url_raw( rest_url() ), 'nonce' => wp_create_nonce( 'wp_rest' ) ) );
 	}
 
 	/**
@@ -680,10 +689,12 @@ class PixCustomifyPlugin {
 //					}
 //
 //					unset( $font['value']['font-options'] );
+
+					$font['value'] = stripslashes_deep( $font['value'] );
 					$font['value'] = json_encode( $font['value'] );
 				}
 
-				$value = json_decode( $font['value'], true );
+				$value = json_decode( wp_unslash( $font['value'] ), true );
 
 				// in case the value is still null, try default value(mostly for google fonts)
 				if ( ! is_array( $value ) || $value === null ) {
@@ -942,11 +953,11 @@ class PixCustomifyPlugin {
 	}
 
 	protected function process_custom_background_field_output( $option_id, $options ) {
-		if ( ! isset( $options['value'] ) ) {
-			return '';
-		}
-
 		$selector = '';
+
+		if ( ! isset( $options['value'] ) ) {
+			return false;
+		}
 		$value    = $options['value'];
 
 		if ( ! isset( $options['output'] ) ) {
@@ -1245,7 +1256,7 @@ class PixCustomifyPlugin {
 		}
 
 		$wp_customize->add_section( $section_id, $section_args );
-
+		$partials_array = array();
 		foreach ( $section_settings['options'] as $option_id => $option_config ) {
 
 			if ( empty( $option_id ) || ! isset( $option_config['type'] ) ) {
@@ -1255,7 +1266,13 @@ class PixCustomifyPlugin {
 			$option_id = $options_name . '[' . $option_id . ']';
 
 			$this->register_field( $section_id, $option_id, $option_config, $wp_customize );
+			$partials_array[] = $option_id;
 		}
+		$wp_customize->selective_refresh->add_partial( 'mymy_partial', array(
+			'selector' => 'body',
+			'settings' => $partials_array,
+			'render_callback' => 'do_nothing_jon_snow',
+		) );
 
 	}
 
@@ -1560,6 +1577,25 @@ class PixCustomifyPlugin {
 				$control_class_name = 'Pix_Customize_HTML_Control';
 				break;
 
+			case 'import_demo_data' :
+
+				if ( isset( $setting_config['html'] ) || ! empty( $setting_config['html'] ) ) {
+					$control_args['html'] = $setting_config['html'];
+				}
+
+				if ( ! isset( $setting_config['label'] ) || empty( $setting_config['label'] ) ) {
+					$control_args['label'] = esc_html__( 'Import', 'customify' );
+				} else {
+					$control_args['label'] = $setting_config['label'];
+				}
+
+				if ( isset( $setting_config['notices'] ) && ! empty( $setting_config['notices'] ) ) {
+					$control_args['notices'] = $setting_config['notices'];
+				}
+
+				$control_class_name = 'Pix_Customize_Import_Demo_Data_Control';
+				break;
+
 			default:
 				// if we don't have a real control just quit, it doesn't even matter
 				return;
@@ -1575,6 +1611,10 @@ class PixCustomifyPlugin {
 		if ( $add_control ) {
 			$wp_customize->add_control( $this_control );
 		}
+	}
+
+	function do_nothing_jon_snow() {
+		echo '1';
 	}
 
 	/**
@@ -1637,6 +1677,26 @@ class PixCustomifyPlugin {
 	}
 
 	/**
+	 * Use this function when you need to know if an import button is used
+	 * @return bool
+	 */
+	function import_button_exists() {
+
+		if ( empty( self::$options_list ) ) {
+			self::$options_list = $this->get_options();
+		}
+
+		foreach ( self::$options_list as $option ) {
+			if ( isset( $option['type'] ) && 'import_demo_data' === $option['type'] ) {
+				return true;
+				break;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Sanitize functions
 	 */
 
@@ -1674,5 +1734,16 @@ class PixCustomifyPlugin {
 		// If the array keys of the keys match the keys, then the array must
 		// not be associative (e.g. the keys array looked like {0:0, 1:1...}).
 		return array_keys( $keys ) !== $keys;
+	}
+
+	function register_import_api(){
+
+		include_once( self::get_base_path() . '/features/class-Customify_Importer.php' );
+		$controller = new Customify_Importer_Controller();
+		$controller->init();
+	}
+
+	function get_options_configs () {
+		return self::$options_list;
 	}
 }
