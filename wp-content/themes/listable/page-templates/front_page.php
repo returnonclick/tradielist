@@ -19,12 +19,12 @@ global $post; ?>
 				$has_image       = false; ?>
 
 				<?php if ( ( empty( $the_random_hero ) || property_exists( $the_random_hero, 'post_mime_type' ) || strpos( $the_random_hero->post_mime_type, 'video' ) !== false ) && is_object( $the_random_hero ) && property_exists( $the_random_hero, 'post_mime_type' ) && strpos( $the_random_hero->post_mime_type, 'image' ) !== false ) {
-					$has_image = $the_random_hero->guid;
+					$has_image = wp_get_attachment_url( $the_random_hero->ID );
 				} ?>
 				<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 					<header class="entry-header has-image">
 						<div class="entry-featured"<?php if ( ! empty( $has_image ) ) {
-							echo ' style="background-image: url(' . $has_image . ');"';
+							echo ' style="background-image: url(' . listable_get_inline_background_image( $has_image ) . ');"';
 						} ?>>
 							<?php if ( ! empty( $the_random_hero ) && property_exists( $the_random_hero, 'post_mime_type' ) && strpos( $the_random_hero->post_mime_type, 'video' ) !== false ) {
 								$mimetype = str_replace( 'video/', '', $the_random_hero->post_mime_type );
@@ -48,14 +48,12 @@ global $post; ?>
 
 							<?php get_template_part( 'job_manager/job-filters-hero' ); ?>
 
-							<div class="top-categories">
-								<div class="top-categories-center">
-									<div class="top-categories-flex">
-										<?php listable_display_frontpage_listing_categories(); ?>
-									</div>
-								</div>
-							</div>
 						</div>
+
+						<div class="top-categories">
+							<?php listable_display_frontpage_listing_categories(); ?>
+						</div>
+
 					</header>
 
 					<?php if ( $post->post_content ): ?>

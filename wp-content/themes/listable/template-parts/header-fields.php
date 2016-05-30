@@ -10,6 +10,7 @@
 //do not show the navigation fields on the front page
 if ( ! is_page_template( 'page-templates/front_page.php') ) :
 	if ( listable_using_facetwp() ) :
+		global $post;
 
 		$facets = listable_get_facets_by_area( 'navigation_bar' );
 
@@ -44,23 +45,21 @@ if ( ! is_page_template( 'page-templates/front_page.php') ) :
 						})(jQuery);
 
 						function facetwp_redirect_to_listings() {
-							if ('get' == FWP.permalink_type) {
-								var query_string = FWP.build_query_string();
-								if ('' != query_string) {
-									query_string = '?' + query_string;
-								}
-								var url = query_string;
+							FWP.parse_facets();
+							FWP.set_hash();
+
+							var query_string = FWP.build_query_string();
+							if ('' != query_string) {
+								query_string = '?' + query_string;
 							}
-							else {
-								var url = window.location.hash;
-							}
+							var url = query_string;
 							window.location.href = '<?php echo listable_get_listings_page_url(); ?>' + url;
 						}
 					</script>
 
 				<?php else : ?>
 
-					<button class="search-submit" name="submit" id="searchsubmit" onclick="FWP.refresh();">
+					<button class="search-submit" name="submit" id="searchsubmit" onclick="FWP.refresh();<?php echo ( ! has_shortcode( 'jobs', $post->post_content ) ) ? 'facetwp_redirect_to_listings();' : '' ?>">
 						<?php get_template_part( 'assets/svg/search-icon-svg' ); ?>
 					</button>
 

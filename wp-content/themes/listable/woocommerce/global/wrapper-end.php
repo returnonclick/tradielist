@@ -10,5 +10,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
-
 echo '</main><!-- #main .site-main -->';
+
+do_action( 'listable_before_page_content' );

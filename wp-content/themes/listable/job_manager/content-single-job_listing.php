@@ -30,7 +30,7 @@ if ( is_array($terms) || is_object($terms) ) {
 
 $listing_is_claimed = false;
 if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
-	$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array() );
+	$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array(), '', $post->ID );
 
 	if ( isset( $classes[0] ) && ! empty( $classes[0] ) ) {
 		if ( $classes[0] == 'claimed' )

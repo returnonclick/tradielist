@@ -78,7 +78,6 @@ html {
   top: 50%;
   left: 50%;
   -webkit-transform: translateX(-50%) translateY(-50%);
-      -ms-transform: translateX(-50%) translateY(-50%);
           transform: translateX(-50%) translateY(-50%);
   width: 385px;
   max-width: 100%;
@@ -131,7 +130,6 @@ html {
   top: 50%;
   right: 15px;
   -webkit-transform: translateY(-50%);
-      -ms-transform: translateY(-50%);
           transform: translateY(-50%);
   display: inline-block;
   width: 0;
@@ -235,7 +233,6 @@ div#login_error, .message {
   left: 0;
   right: 0;
   -webkit-transform: translateY(-35%);
-      -ms-transform: translateY(-35%);
           transform: translateY(-35%);
 }
 

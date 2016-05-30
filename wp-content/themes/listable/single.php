@@ -25,10 +25,12 @@ get_header(); ?>
 				endif;
 			?>
 
+
 		<?php endwhile; // End of the loop. ?>
 
 		</main><!-- #main -->
 	</div><!-- #primary -->
 
+<?php do_action( 'listable_before_page_content' ); ?>
 <?php get_sidebar(); ?>
 <?php get_footer(); ?>

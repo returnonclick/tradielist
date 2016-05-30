@@ -22,13 +22,15 @@ function listable_get_all_facets() {
 }
 
 function listable_get_facets_by_area( $area = 'front_page_hero' ) {
+	$facets = array();
+
 	$listable_facets = (array) json_decode( get_option( 'listable_facets_config' ), true ) ;
 
-	if ( isset( $listable_facets[$area] ) ) {
-		return $listable_facets[$area];
+	if ( isset( $listable_facets[ $area ] ) ) {
+		$facets = $listable_facets[ $area ];
 	}
 
-//	return listable_get_all_facets();
+	return apply_filters( 'listable_get_facets_by_area', $facets, $area );
 }
 
 /*
@@ -88,6 +90,12 @@ function listable_register_listings_template( $templates ) {
 add_filter( 'facetwp_templates', 'listable_register_listings_template' );
 
 /*
+ * Enable WP archive detection for FacetWP templates
+ * Requires FacetWP 2.4.1
+ */
+add_filter( 'facetwp_template_use_archive', '__return_true' );
+
+/*
  * Filter the FacetWP query when using the "listings" template in FacetWP
  */
 function listable_facetwp_query_args( $query_args, $facet ) {
@@ -99,10 +107,16 @@ function listable_facetwp_query_args( $query_args, $facet ) {
 		$query_args = array();
 	}
 
+	// Prevent "Undefined index" error for search facets
+	$search = '';
+	if ( ! empty( $facet->http_params[ 'get' ][ 's' ] ) ) {
+		$search = $facet->http_params[ 'get' ][ 's' ];
+	}
+
 	$defaults = array(
 		'post_type' => 'job_listing',
 		'post_status' => 'publish',
-		's' => $facet->is_search ? $facet->http_params[ 'get' ][ 's' ] : '',
+		's' => $search,
 	);
 
 	$query_args = wp_parse_args( $query_args, $defaults );
@@ -116,7 +130,7 @@ add_filter( 'facetwp_query_args', 'listable_facetwp_query_args', 10, 2 );
  * This is used to load the listings via AJAX
  */
 function listable_facetwp_template_html( $output, $class ) {
-	if ( 'listings' != $class->template[ 'name' ] ) {
+	if ( 'listings' != $class->template[ 'name' ] || '' == $class->http_params['uri'] ) {
 		return $output;
 	}
 
@@ -179,6 +193,11 @@ add_filter( 'facetwp_index_row', 'listable_fwp_index_wpjm_product_prices', 10, 2
 /* ==== THE CUSTOM DRAG&DROP INTERFACE === */
 
 function listable_fwp_admin_scripts() {
+
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'job-manager-settings') {
+		return;
+	}
+
 	wp_enqueue_style( 'fwp_job_manager_admin_css', get_template_directory_uri() . '/assets/css/admin/fwp-settings.css', array( 'job_manager_admin_css' ) );
 
 	wp_register_script( 'fwp_sortable_js',get_template_directory_uri() . '/assets/js/admin/facetwp/sortable.js', array(), null, true );
@@ -189,7 +208,6 @@ add_action( 'admin_enqueue_scripts', 'listable_fwp_admin_scripts', 11 );
 
 function listable_wpjm_facets_drag_drop_interface ( $option, $attrs, $value, $placeholder ) {
 	$current_values = json_decode( $value );
-//	var_dump($current_values);
 
 	$facetwp_settigns = json_decode( get_option( 'facetwp_settings' ) ); ?>
 
@@ -289,3 +307,49 @@ function listable_admin_show_facets_items( $facetwp_settigns = array() ) {
 
 // disable google-maps api load in facetwp ... we will do in in theme
 add_filter( 'facetwp_proximity_load_js', '__return_false' );
+
+
+function listable_add_facet_redirects_on_non_listings_pages(){
+	global $post;
+	if ( ! has_shortcode( $post->post_content, 'jobs' ) ) { ?>
+		<div class="hide">
+			<script>
+				(function($) {
+					$(document).ready(function () {
+						//prevent the facets from disappearing
+						FWP.loading_handler = function() {}
+					});
+
+					$(document).on('keyup','.header-facet-wrapper input[type="text"]', function(e) {
+						if (e.which === 13) {
+							//if the user presses ENTER/RETURN in a text field then redirect
+							facetwp_redirect_to_listings();
+							return false;
+						}
+					});
+
+					$(document).on('change','.header-facet-wrapper select, .header-facet-wrapper input[type="checkbox"]', function(ev, el) {
+						if ($( this ).val() !== '') {
+							facetwp_redirect_to_listings();
+						}
+					});
+				})(jQuery);
+
+				function facetwp_redirect_to_listings() {
+					FWP.parse_facets();
+					FWP.set_hash();
+
+					var query_string = FWP.build_query_string();
+					if ('' != query_string) {
+						query_string = '?' + query_string;
+					}
+					var url = query_string;
+					window.location.href = '<?php echo listable_get_listings_page_url(); ?>' + url;
+				}
+			</script>
+			<?php echo facetwp_display( 'template', 'listings' ); ?>
+		</div>
+	<?php }
+}
+
+add_action( 'listable_before_page_content', 'listable_add_facet_redirects_on_non_listings_pages' );

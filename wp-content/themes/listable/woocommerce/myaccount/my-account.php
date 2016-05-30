@@ -16,12 +16,12 @@ wc_print_notices(); ?>
 <div class="myaccount">
 	<div class="myaccount__flex clearfix">
 		<div class="myaccount__avatar">
-			<?php global $userdata; get_currentuserinfo(); echo get_avatar( $userdata->ID, 128 ); ?>
+			<?php global $userdata; wp_get_current_user(); echo get_avatar( $userdata->ID, 128 ); ?>
 		</div>
 		<div class="myaccount__content">
 			<?php
 			printf(
-				__( 'Hello <strong>%1$s</strong>!', 'woocommerce' ) . ' ',
+				__( 'Hello <strong>%1$s</strong> (not %1$s? <a href="%2$s">Sign out</a>).', 'woocommerce' ) . ' ',
 				$current_user->display_name,
 				wc_get_endpoint_url( 'customer-logout', '', wc_get_page_permalink( 'myaccount' ) )
 			);

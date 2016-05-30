@@ -126,7 +126,10 @@ class Listing_Actions_Widget extends WP_Widget {
 
 		?>
 
-		<div class="single-action-buttons<?php if( 1 == $action_items ) echo '  has--one-action'; ?>">
+		<div class="single-action-buttons<?php
+			if( 1 == $action_items ) echo '  has--one-action';
+			elseif( 2 == $action_items ) echo '  has--two-actions';
+		?>">
 			<?php if ( true == $action_reviews ) : ?>
 
 				<a href="#respond" class="action  action--review">
@@ -192,9 +195,18 @@ class Listing_Content_Widget extends WP_Widget {
 
 		//first let's filter the content in any way we might find suitable
 		$content = get_the_content();
+		//let add-ons and so on, hook into this
+		//but cripple it's behaviour similar to the_content
+		remove_filter( 'the_job_description', 'wptexturize'        );
+		remove_filter( 'the_job_description', 'convert_smilies'    );
+		remove_filter( 'the_job_description', 'convert_chars'      );
+		remove_filter( 'the_job_description', 'wpautop'            );
+		remove_filter( 'the_job_description', 'shortcode_unautop'  );
+		remove_filter( 'the_job_description', 'prepend_attachment' );
+		$content = apply_filters( 'the_job_description', $content );
+
 		//deliver the_content blessing from the Heavens (you know... shortcodes and all)
 		$content = apply_filters( 'the_content', $content );
-		$content = apply_filters( 'the_job_description', $content );
 
 		if ( ! empty( $content ) ) : ?>
 
@@ -266,12 +278,7 @@ class Listing_Sidebar_Map_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		global $post;
 
-		if ( true == apply_filters( 'listable_skip_geolocation_formatted_address', false ) ) {
-			//we will use the address inputed by the user
-			$address = get_the_job_location();
-		} else {
-			$address = get_post_meta( get_the_ID(), 'geolocation_formatted_address', true );
-		}
+		$address = listable_get_formatted_address();
 
 		if ( empty( $address ) ) {
 			return;
@@ -300,12 +307,15 @@ class Listing_Sidebar_Map_Widget extends WP_Widget {
 		</div>
 		<div class="listing-map-content">
 			<address class="listing-address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
-				<?php echo $address; ?>
-				<meta itemprop="streetAddress" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_street_number', true ), '' ); ?> <?php echo trim( get_post_meta( $post->ID, 'geolocation_street', true ), '' ); ?>">
-				<meta itemprop="addressLocality" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_city', true ), '' ); ?>">
-				<meta itemprop="postalCode" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_postcode', true ), '' ); ?>">
-				<meta itemprop="addressRegion" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_state', true ), '' ); ?>">
-				<meta itemprop="addressCountry" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_country_short', true ), '' ); ?>">
+				<?php
+				echo $address;
+				if ( true == apply_filters( 'listable_skip_geolocation_formatted_address', false ) ) { ?>
+					<meta itemprop="streetAddress" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_street_number', true ), '' ); ?> <?php echo trim( get_post_meta( $post->ID, 'geolocation_street', true ), '' ); ?>">
+					<meta itemprop="addressLocality" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_city', true ), '' ); ?>">
+					<meta itemprop="postalCode" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_postcode', true ), '' ); ?>">
+					<meta itemprop="addressRegion" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_state', true ), '' ); ?>">
+					<meta itemprop="addressCountry" content="<?php echo trim( get_post_meta( $post->ID, 'geolocation_country_short', true ), '' ); ?>">
+				<?php } ?>
 			</address>
 			<?php if ( ! empty( $get_directions_link ) ) { ?>
 				<a href="<?php echo $get_directions_link; ?>" class="listing-address-directions" target="_blank"><?php esc_html_e( 'Get directions', 'listable' ); ?></a>
@@ -433,7 +443,10 @@ class Listing_Sidebar_Gallery_Widget extends WP_Widget {
 				<?php
 				foreach ( $photos as $key => $photo_ID ) : ?>
 					<a href="<?php echo wp_get_attachment_url( $photo_ID ); ?>" class="listing-gallery__item">
-						<?php echo wp_get_attachment_image( $photo_ID, 'thumbnail', false, array( 'itemprop' => 'image' ) ); ?>
+						<?php
+							$attachment = get_post( $photo_ID );
+							echo wp_get_attachment_image( $photo_ID, 'thumbnail', false, array( 'itemprop' => 'image', 'caption' => $attachment->post_excerpt, 'description' => $attachment->post_content ) );
+						?>
 					</a>
 				<?php endforeach; ?>
 
@@ -477,7 +490,7 @@ class Listing_Sidebar_Claim_Listing_Widget extends WP_Widget {
 		$claim_button_text = ( empty( $instance ) || ! isset( $instance['claim_button_text'] ) ) ? $placeholders['claim_button_text'] : $instance['claim_button_text'];
 		$claim_description_text = ( empty( $instance ) || ! isset( $instance['claim_description_text'] ) ) ? $placeholders['claim_description_text'] : $instance['claim_description_text'];
 
-		$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array() );
+		$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array(), '', $post->ID );
 
 		if ( isset( $classes[0] ) && ! empty( $classes[0] ) ) {
 			if ( $classes[0] == 'claimed' )
@@ -582,7 +595,7 @@ class Listing_Sidebar_Claim_Listing_Widget extends WP_Widget {
 			array(
 				'title'    => esc_html__( 'Is this your business?', 'listable' ),
 				'claim_button_text' => esc_html__( 'Claim it now.', 'listable' ),
-				'claim_description_text' => esc_html__( 'Make sure your information are up to date.', 'listable' ),
+				'claim_description_text' => esc_html__( 'Make sure your information is up to date.', 'listable' ),
 			) );
 
 		return $placeholders;
@@ -682,14 +695,17 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 
 			if ( $listings->have_posts() ) : ?>
 				<div class="grid  grid--widget  list">
-					<?php while ( $listings->have_posts() ) :
-						$listings->the_post();
+					<?php while ( $listings->have_posts() ) : $listings->the_post();
 						$terms = get_the_terms( get_the_ID(), 'job_listing_category' );
 
 						$listing_classes = 'card  card--listing  card--widget  ';
 						$listing_is_claimed = false;
+						$listing_is_featured = false;
+
+						if ( is_position_featured($post) ) $listing_is_featured = true;
+
 						if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
-							$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array() );
+							$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array(), '', $post->ID  );
 
 							if ( isset( $classes[0] ) && ! empty( $classes[0] ) ) {
 								$listing_classes .= $classes[0];
@@ -697,7 +713,11 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 								if ( $classes[0] == 'claimed' )
 									$listing_is_claimed = true;
 							}
-						} ?>
+						}
+
+						if ( true === $listing_is_featured ) $listing_classes .= '  is--featured';
+
+						$listing_classes = apply_filters( 'listable_listing_archive_classes', $listing_classes, $post ); ?>
 
 						<a href="<?php the_job_permalink(); ?>" class="grid__item  grid__item--widget">
 							<article class="<?php echo $listing_classes; ?>" data-latitude="<?php echo get_post_meta( $post->ID, 'geolocation_lat', true ); ?>"
@@ -706,19 +726,13 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 							         data-permalink="<?php the_job_permalink(); ?>">
 
 								<aside class="card__image" style="background-image: url(<?php echo listable_get_post_image_src( $post->ID, 'listable-card-image' ); ?>);">
-									<?php
-									global $job_manager_bookmarks;
+									<?php if ( true === $listing_is_featured ): ?>
+									<span class="card__featured-tag"><?php esc_html_e( 'Featured', 'listable' ); ?></span>
+									<?php endif; ?>
 
-									if ( $job_manager_bookmarks !== null && method_exists( $job_manager_bookmarks, 'is_bookmarked' ) ) {
-										$bookmark_state = '';
+									<?php do_action('listable_job_listing_card_image_top', $post ); ?>
 
-										if (  $job_manager_bookmarks->is_bookmarked( $post->ID ) ) {
-											$bookmark_state = 'is--bookmarked';
-										} ?>
-										<div class="heart <?php echo $bookmark_state; ?>">
-											<?php get_template_part( 'assets/svg/heart-svg' ); ?>
-										</div>
-									<?php } ?>
+									<?php do_action('listable_job_listing_card_image_bottom', $post ); ?>
 
 								</aside>
 
@@ -769,12 +783,7 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 										<?php endif; ?>
 
 										<div class="address  card__address">
-											<span class="address__street"><?php echo trim( get_post_meta( $post->ID, 'geolocation_street', true ), '' ); ?></span>
-											<span class="address__street-no"><?php echo trim( get_post_meta( $post->ID, 'geolocation_street_number', true ), '' ); ?></span>
-											<span class="address__city"><?php echo trim( get_post_meta( $post->ID, 'geolocation_city', true ), '' ); ?></span>
-											<span class="address__postcode"><?php echo trim( get_post_meta( $post->ID, 'geolocation_postcode', true ), '' ); ?></span>
-											<span class="address__country"><?php echo trim( get_post_meta( $post->ID, 'geolocation_country_short', true ), '' ); ?></span>
-											<span class="address__country-short"><?php echo trim( get_post_meta( $post->ID, 'geolocation_country_long', true ), '' ); ?></span>
+											<?php echo listable_display_formatted_address( $post ); ?>
 										</div>
 									</footer>
 								</div><!-- .card__content -->
@@ -1082,7 +1091,7 @@ class Front_Page_Listing_Categories_Widget extends WP_Widget {
 						} ?>
 
 						<li <?php echo empty( $icon_url ) ? 'class="no-icon"' : ''; ?>>
-							<div class="category-cover" style="background-image: url(<?php echo $image_src; ?>)">
+							<div class="category-cover" style="background-image: url(<?php echo listable_get_inline_background_image( $image_src ); ?>)">
 								<a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 
 									<?php if ( ! empty( $icon_url ) ) : ?>
@@ -1811,7 +1820,7 @@ class Front_Page_Listing_Regions_Widget extends WP_Widget {
 
 						<li <?php echo empty( $icon_url ) ? 'class="no-icon"' : '';  ?>>
 
-							<div class="category-cover" style="background-image: url(<?php echo $image_src; ?>)">
+							<div class="category-cover" style="background-image: url(<?php echo listable_get_inline_background_image( $image_src ); ?>)">
 								<a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
 									<?php if ( ! empty( $icon_url ) ) : ?>
 

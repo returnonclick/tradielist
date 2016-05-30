@@ -19,6 +19,16 @@ jQuery(document).ready(function ($) {
 
 	var formfield;
 
+	$('body').on('input', '.cmb_text_range', function(e) {
+		var $slider = $(this),
+			value = $slider.val(),
+			sliderMin = $slider.attr('min'),
+			sliderMax = $slider.attr('max'),
+			progress = (value - sliderMin) / (sliderMax - sliderMin),
+			percentage = (progress * 100).toFixed(2) + '%';
+		$slider.css('background-size', percentage + ' 100%');
+	});
+
 	/**
 	 * First we take care of showing and hiding the meta boxes for post formats
 	 */
@@ -55,7 +65,12 @@ jQuery(document).ready(function ($) {
 		icon: '(?)',
 		iconDesktop: true,
 		iconTouch: true,
-		iconTheme: '.tooltipster-icon'
+		iconTheme: '.tooltipster-icon',
+		delay: 300,
+		maxWidth: 280,
+		interactive: true,
+		trigger: 'hover',
+		contentAsHTML: true,
 	});
 
 	/**
@@ -73,7 +88,14 @@ jQuery(document).ready(function ($) {
 	 * Initialize color picker
 	 */
 	if (typeof jQuery.wp === 'object' && typeof jQuery.wp.wpColorPicker === 'function') {
-		$('input:text.cmb_colorpicker').wpColorPicker();
+		$('input:text.cmb_colorpicker').wpColorPicker({
+			change: function ( ev ) {
+				$(this).trigger('wpcolorpicker:change');
+			},
+			color: function ( ev ) {
+				$(this).trigger('wpcolorpicker:change');
+			},
+		});
 	} else {
 		$('input:text.cmb_colorpicker').each(function (i) {
 			$(this).after('<div id="picker-' + i + '" style="z-index: 1000; background: #EEE; border: 1px solid #CCC; position: absolute; display: block;"></div>');
@@ -345,7 +367,7 @@ jQuery(document).ready(function ($) {
 		 * Check if the curent element needs to be showed
 		 * Also if it's parent is hidden the child needs to follow
 		 */
-		if (action == 'hide' && $parent.hasClass('hidden')) {
+		if (action == 'hide' && !$parent.hasClass('hidden')) {
 			$(selector).show().removeClass('hidden');
 		} else {
 			$(selector).hide().addClass('hidden');

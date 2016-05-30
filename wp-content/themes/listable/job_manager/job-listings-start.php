@@ -4,9 +4,18 @@
  *
  * @package Listable
  */
-?>
 
-<?php
+if ( is_archive() ) :
+	global $wp_query;
+	$term = $wp_query->queried_object;
+
+	if ( isset( $term->description ) && !empty( $term->description ) ) : ?>
+
+	<div class="listing_category_description" itemprop="description"><?php echo $term->description; ?></div>
+
+<?php endif;
+endif;
+
 if ( listable_using_facetwp() ) :
 
 	do_action( 'listify_facetwp_sort' );

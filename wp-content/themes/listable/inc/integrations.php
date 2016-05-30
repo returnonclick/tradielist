@@ -14,11 +14,11 @@ if ( class_exists( 'WP_Job_Manager' ) ) {
 }
 
 /**
- * Load WP Job Manager Products compatibility file.
- * https://astoundify.com/downloads/wp-job-manager-products/
+ * Load WP Job Manager Bookmarks compatibility file.
+ * https://wpjobmanager.com/add-ons/bookmarks/
  */
-if ( class_exists( 'WP_Job_Manager_Products' ) ) {
-	require get_template_directory() . '/inc/integrations/wp-job-manager-products.php';
+if ( class_exists( 'WP_Job_Manager_Bookmarks' ) ) {
+	require get_template_directory() . '/inc/integrations/wp-job-manager-bookmarks.php';
 }
 
 /**
@@ -49,6 +49,14 @@ function listable_using_facetwp() {
  */
 if ( class_exists( 'WooCommerce' ) ) {
 	require get_template_directory() . '/inc/integrations/woocommerce.php';
+}
+
+/**
+ * Load WP Job Manager Products compatibility file.
+ * https://astoundify.com/downloads/wp-job-manager-products/
+ */
+if ( class_exists( 'WP_Job_Manager_Products' ) ) {
+	require get_template_directory() . '/inc/integrations/wp-job-manager-products.php';
 }
 
 /**

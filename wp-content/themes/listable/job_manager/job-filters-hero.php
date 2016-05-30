@@ -34,8 +34,8 @@
 			(function($) {
 
 				$(document).ready(function () {
-					//disable auto-refresh for hero facets
-					FWP.auto_refresh = false;
+					//prevent the facets from disappearing
+					FWP.loading_handler = function() {}
 				});
 
 				$(document).on('keyup','.search_jobs--frontpage-facetwp input[type="text"]', function(e) {
@@ -52,16 +52,13 @@
 			})(jQuery);
 
 			function facetwp_redirect_to_listings() {
-				if ('get' == FWP.permalink_type) {
-					var query_string = FWP.build_query_string();
-					if ('' != query_string) {
-						query_string = '?' + query_string;
-					}
-					var url = query_string;
+				FWP.parse_facets();
+				FWP.set_hash();
+				var query_string = FWP.build_query_string();
+				if ('' != query_string) {
+					query_string = '?' + query_string;
 				}
-				else {
-					var url = window.location.hash;
-				}
+				var url = query_string;
 				window.location.href = '<?php echo listable_get_listings_page_url(); ?>' + url;
 			}
 		</script>
@@ -104,7 +101,7 @@ $fields_num = count( $fields_options );
 <?php do_action( 'job_manager_job_filters_before', $atts ); ?>
 
 <?php if ( $fields_num >= 1 ) : ?>
-<form class="search-form   job_search_form  js-search-form" action="<?php echo get_post_type_archive_link( 'job_listing' ); ?>" method="get" role="search">
+<form class="search-form   job_search_form  js-search-form" action="<?php echo listable_get_listings_page_url(); ?>" method="get" role="search">
 	<?php if ( ! get_option('permalink_structure') ) {
 		//if the permalinks are not activated we need to put the listings page id in a hidden field so it gets passed
 		$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
@@ -144,7 +141,7 @@ $fields_num = count( $fields_options );
 
 			<div class="search_location  search-filter-wrapper">
 				<label for="search_location"><?php esc_html_e( 'Location', 'listable' ); ?></label>
-				<?php if ( class_exists( 'Astoundify_Job_Manager_Regions' ) ) { ?>
+				<?php if ( class_exists( 'Astoundify_Job_Manager_Regions' ) && "1" === get_option('job_manager_regions_filter') ) { ?>
 					<div class="search_region-dummy">
 						<input type="text" name="search_location" id="search_location" placeholder="<?php esc_attr_e( 'Location', 'listable' ); ?>" style="display: none;" />
 						<input type="text" class="select-region-dummy  search-field" disabled="disabled" placeholder="<?php esc_attr_e( 'All Regions', 'listable' ); ?>" />

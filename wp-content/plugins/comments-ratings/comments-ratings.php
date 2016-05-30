@@ -10,7 +10,7 @@
 Plugin Name: Comments Ratings
 Plugin URI:  https://wordpress.org/plugins/comments-ratings/
 Description: Easily transform your comments into reviews.
-Version: 1.1.3
+Version: 1.1.5
 Author: PixelGrade
 Author URI: https://pixelgrade.com
 Author Email: contact@pixelgrade.com
@@ -35,7 +35,7 @@ require 'core/bootstrap'.EXT;
 $config = include 'plugin-config'.EXT;
 
 // set textdomain
-pixreviews::settextdomain($config['textdomain']);
+load_plugin_textdomain( 'comments-ratings', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 
 // Ensure Test Data
 // ----------------
@@ -66,5 +66,8 @@ require_once( plugin_dir_path( __FILE__ ) . 'class-pixreviews.php' );
 register_activation_hook( __FILE__, array( 'PixReviewsPlugin', 'activate' ) );
 //register_deactivation_hook( __FILE__, array( 'pixreviewsPlugin', 'deactivate' ) );
 
-global $pixreviews_plugin;
-$pixreviews_plugin = PixReviewsPlugin::get_instance();
+function pixreviews_init_plugin() {
+	global $pixreviews_plugin;
+	$pixreviews_plugin = PixReviewsPlugin::get_instance();
+}
+add_action( 'after_setup_theme', 'pixreviews_init_plugin' );

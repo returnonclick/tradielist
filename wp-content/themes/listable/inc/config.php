@@ -776,7 +776,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 
 				'import_demo_data' => array(
 					'title'    => __( 'Demo Data', 'listable' ),
-					'description' => esc_html__( 'If you would like to have a "ready to go" website as the Border\'s demo page here is the button', 'listable' ),
+					'description' => esc_html__( 'If you would like to have a "ready to go" website as the Listable\'s demo page here is the button', 'listable' ),
 					'priority' => 999999,
 					'options'  => array(
 						'import_demodata_button' => array(
@@ -788,7 +788,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 										<input type="hidden" name="wpGrade_import_ajax_url" value="' . admin_url( "admin-ajax.php" ) . '" />' .
 										'<span class="description customize-control-description">' . esc_html__( '(Note: We cannot serve you the original images due the ', 'listable' ) . '<strong>&copy;</strong>)</span></br>' .
 										'<a href="#" class="button button-primary" id="wpGrade_import_demodata_button" style="width: 70%; text-align: center; padding: 10px; display: inline-block; height: auto;  margin: 0 15% 10% 15%;">
-											' . __( 'Import demo data', 'mies_txtd' ) . '
+											' . __( 'Import demo data', 'listable' ) . '
 										</a>
 
 										<div class="wpGrade-loading-wrap hidden">
@@ -1447,15 +1447,19 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover,
 													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus,
 													.package__btn.package__btn:hover,
-													.job_listing_preview_title input[name="edit_job"],
 													.nav-links a:hover, .site-footer a:hover, .facetwp-pager a:hover,
 													.facetwp-pager a.first-page:hover:before, .facetwp-pager a.first-page:hover:after,
 													.facetwp-pager a.last-page:hover:before, .facetwp-pager a.last-page:hover:after,
-													.widget_listing_sidebar_claim_listing .listing-claim-button, .lwa-form .lwa-action-link',
+													.widget_listing_sidebar_claim_listing .listing-claim-button, .lwa-form .lwa-action-link,
+													.pac-container .pac-item:hover .pac-item-query',
 								),
 								array(
 									'property' => 'background-color',
-									'selector' => '.secondary-menu, .secondary-menu:before, .secondary-menu:after, .product__remove',
+									'selector' => '.secondary-menu, .secondary-menu-wrapper:before, .product__remove,
+													.page-template-front_page .pac-container .pac-item:hover,
+													.page-template-front_page .search_jobs--frontpage .search-submit,
+													.facetwp-type-slider .noUi-connect,
+													.card__featured-tag, .woocommerce-message',
 								),
 								array(
 									'property' => 'background',
@@ -1669,8 +1673,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 						'navigation_font'           => array(
 							'type'             => 'typography',
 							'label'            => esc_html__( 'Navigation Text', 'listable' ),
-							'selector'         => '.primary-menu > ul, ul.primary-menu,
-									.search-suggestions-menu li a',
+							'selector'         => '.primary-menu > ul, ul.primary-menu a',
 							'load_all_weights' => false,
 							'subsets'          => false,
 							'default'          => array( 'Hanken', '400' ),
@@ -1789,7 +1792,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									.search_location input,
 									.package__title, .package__price,
 									h2.comments-title,
-
+									.page-add-listing fieldset:first-child label,
 									.product-content .price',
 							'load_all_weights' => false,
 							'subsets'          => true,
@@ -1808,15 +1811,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'selector'         => '.intro,
 									.description,
 									.tabs.wc-tabs,
-									.btn,
-									input[type="submit"],
-									.page-template-front_page .search-form .search-submit,
 									.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a,
-									.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"],
-									.woocommerce .button,
 									.widget_subtitle--frontpage,
 									.category-list a,
-									.search-form .search-field,
 									.single:not(.single-job_listing) .entry-subtitle,
 									.page .entry-subtitle,
 									.single-job_listing .entry-subtitle',
@@ -1932,13 +1929,30 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								.single:not(.single-job_listing) div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
 								.page div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
 								.search_jobs select,
-								.chosen-container-multi .chosen-choices li.search-field input[type=text],
-								.chosen-container-single .chosen-single span,
+								.search-form .search-field,
+								.search_jobs--frontpage .chosen-container .chosen-results li,
+								.search_jobs--frontpage .chosen-container-multi .chosen-choices li.search-field input[type=text],
+								.search_jobs--frontpage .chosen-container-single .chosen-single span,
+								.search_jobs .chosen-container .chosen-results li,
+								.search_jobs .chosen-container-multi .chosen-choices li.search-field input[type=text],
+								.search_jobs .chosen-container-single .chosen-single span,
+								.search_jobs--frontpage-facetwp,
+								.search_jobs--frontpage-facetwp input,
+								.search_jobs--frontpage-facetwp select,
+								.search_jobs--frontpage-facetwp .facetwp-filter-title,
+								.header-facet-wrapper .facetwp-facet input,
+								.header-facet-wrapper .facetwp-facet select,
+								.header-facet-wrapper .facetwp-facet label,
 								.active-tag,
 								.chosen-results,
-								.page-add-listing fieldset:first-child label,
-								.page-add-listing .chosen-container-multi .chosen-choices li.search-choice,
-								.job_filters .search_jobs div.search_location input',
+								.job_filters .search_jobs div.search_location input,
+								.search-suggestions-menu li a,
+								.page-template-front_page .search-form .search-submit,
+								.btn,
+								input[type="submit"],
+								button[type="submit"],
+								.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"],
+								.woocommerce .button',
 							'load_all_weights' => false,
 							'default'          => array( 'Hanken', '400' ),
 							'subsets'          => false,

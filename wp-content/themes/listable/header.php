@@ -24,7 +24,8 @@
 	<a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'listable' ); ?></a>
 
 	<header id="masthead" class="site-header  <?php if( is_page_template( 'page-templates/front_page.php' ) && (listable_get_option( 'header_transparent', true ) == true) ) echo 'header--transparent'; ?>" role="banner">
-		<?php if ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) { // display the Site Logo if present ?>
+		<?php
+		if ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) { // display the Site Logo if present ?>
 			<div class="site-branding  site-branding--image">
 				<?php jetpack_the_site_logo(); ?>
 			</div>
@@ -56,7 +57,7 @@
 				'walker' => new Listable_Walker_Nav_Menu(),
 			) );
 			wp_nav_menu( array(
-				'container' => false,
+				'container_class' => 'secondary-menu-wrapper',
 				'theme_location' => 'secondary',
 				'menu_class' => 'primary-menu secondary-menu',
 				'fallback_cb' => false,

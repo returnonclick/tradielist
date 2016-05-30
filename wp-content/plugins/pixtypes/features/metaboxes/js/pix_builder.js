@@ -9,7 +9,7 @@
 
 	$(document).ready(function () {
 
-		var $pix_builder = $('#pix_builder'),
+		var $pix_builder = $('#content'),
 			gridster = $(".gridster > ul"),
 			modal_container = $('.pix_builder_editor_modal_container');
 
@@ -29,92 +29,21 @@
 			gridster_params.on_resize_callback[1],
 			gridster_params.on_resize_callback[2],
 
-			gridster_params.on_resize_callback[3]);
-
-		///**
-		// * use this to serialize these params
-		// * after that echo them in activation.php config
-		// */
-		// var gridster_params = {
-		// 	widget_margins: [30, 30],
-		// 	widget_base_dimensions: [150, 100],
-		// 	min_cols: 3,
-		// 	max_cols: 6,
-		// 	autogenerate_stylesheet: true,
-		// 	resize: {
-		// 		enabled: true,
-		// 		axes: ['x'],
-		//		resize: function (el, ui, $widget) {
-		//			var size_x = this.resize_wgd.size_x;
-		//			if ( size_x == 5 ) {
-		//				// get the closest widget size
-		//				var cws = this.resize_last_sizex;
-		//				// force the widget size to 6
-		//				$(this.resize_wgd.el).attr('data-sizex', cws);
-		//				this.resize_wgd.size_x = cws;
-		//				// now the widget preview
-		//				var preview = $(this.resize_wgd.el).find('.preview-holder');
-		//				preview.attr('data-sizex', cws);
-		//				this.$resize_preview_holder.attr('data-sizex', cws);
-		//				$(document).trigger('pix_builder:serialize');
-		//		}
-		// 	},
-		// 	draggable: {
-		// 		handle: '.drag_handler'
-		// 	},
-		// 	serialize_params: function ($w, wgd) {
-		// 		var type = $w.data("type"),
-		// 			content = $w.find(".block_content").text();
-		// 		if (type == "text") {
-		// 			content = $w.find(".block_content textarea").val();
-		// 		} else if (type == "image") {
-		// 			content = $w.find(".open_media").attr("data-attachment_id");
-		// 		} else if (type == "editor") {
-		// 			content = $w.find(".to_send").text();
-		// 		}
-		// 		return {
-		// 			id: $w.prop("id").replace("block_", ""),
-		// 			type: type,
-		// 			content: content,
-		// 			col: wgd.col,
-		// 			row: wgd.row,
-		// 			size_x: wgd.size_x,
-		// 			size_y: wgd.size_y
-		// 		};
-		// 	}
-		// };
+			gridster_params.on_resize_callback[3]
+		);
 
 		var widget_width = $('#normal-sortables').width() / 6;
-		gridster_params.widget_base_dimensions = [ widget_width - 67 , 40];
+		gridster_params.widget_base_dimensions = [ widget_width - 35 , 40];
 
 		gridster = gridster.gridster(gridster_params).data('gridster');
 
-		//Build the gridster if the builder has value
-		//var serialized_value = $pix_builder.val();
-		//if (serialized_value !== 'undefined' && serialized_value.length !== 0) {
-		//	var parsed = JSON.parse(serialized_value);
-		//
-		//	// sort serialization
-		//	parsed = Gridster.sort_by_row_and_col_asc(parsed);
-		//
-		//	$.each(parsed, function (i, e) {
-		//		var template_args = {
-		//			id: this.id,
-		//			type: this.type,
-		//			content: this.content
-		//		};
-		//		//debugger;
-		//		var block_template = get_block_template(template_args);
-		//		gridster.add_widget(block_template, this.size_x, this.size_y, this.col, this.row);
-		//	});
-		//}
-
-		// get the curent number of blocks
-		var number_of_blocks = 0;
-
-		if ( $(gridster)[0].$widgets.length > 0 ) {
-			number_of_blocks = $(gridster)[0].$widgets.length;
-		}
+		$(window).on('resize', function() {
+			var widget_width = $('#normal-sortables').width() / 6,
+				options = {
+					widget_base_dimensions: [ widget_width - 35, 40 ]
+				}
+			gridster.resize_widget_dimensions(options);
+		});
 
 		// Functions
 		/**
@@ -122,24 +51,70 @@
 		 * or start one if not
 		 */
 		var intent_to_serialize = function() {
+			// prevent the user from saving
+			$('#publish').attr('disabled', 'disabled');
 			if ( ! serialize_intention ) {
-				serialize_timeout = setTimeout( serialize_pix_builder_values, 2000);
+				serialize_timeout = setTimeout( serialize_pix_builder_values, 1000);
 				serialize_intention = true;
 			} else {
 				// kill the timout and start a new one
 				clearTimeout(serialize_timeout);
-				serialize_timeout = setTimeout( serialize_pix_builder_values, 2000);
+				serialize_timeout = setTimeout( serialize_pix_builder_values, 1000);
 			}
+		};
+
+		var b64EncodeUnicode = function(str) {
+			return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+				return String.fromCharCode('0x' + p1);
+			}));
 		};
 
 		var serialize_pix_builder_values = function(){
 
 			var new_values = gridster.serialize();
+
 			// sort_them
 			new_values = Gridster.sort_by_row_and_col_asc(new_values);
 
-			var parsed_string = JSON.stringify(new_values);
-			$pix_builder.val(parsed_string);
+			var public_content = '',
+				output = [],
+				attachment = null;
+
+			$.each( new_values, function ( i, j) {
+				if ( j.hasOwnProperty('content') ) {
+					if ( j.type === 'editor') {
+						public_content = public_content + j.content + "\n";
+					}
+				}
+			});
+
+			// we will save 2 versions of the content
+			// 1 for public: public_content
+			// 2 for internal use: internal_content
+			// var public_content = prepare_values_for_content( new_values );
+			// $.each( new_values, function ( i, j) {
+			// 	if ( j.hasOwnProperty('content') ) {
+			// 		if ( j.type === 'editor') {
+			// 			new_values[i].content = b64EncodeUnicode( j.content );
+			// 		}
+			// 	}
+			// });
+
+			var internal_content = JSON.stringify(new_values),
+				content_editor = tinyMCE.get('content');
+
+			if( typeof content_editor === "undefined" || content_editor === null ) { // text editor
+				$('#content').val( public_content );
+				$('#content').text( public_content );
+			} else { // visual editor
+				content_editor.setContent( public_content , {format:'text'});
+			}
+
+			$('#pix_builder').val(internal_content);
+
+			// now  it can be saved
+			$('#publish').removeAttr('disabled');
+
 			serialize_intention = false;
 		};
 
@@ -158,11 +133,33 @@
 				$('#pix_builder_editor').text( content );
 
 			} else { // visual editor
-				this_editor.setContent( content.replace(/\n/ig,"<br>") , {format:'text'});
+				this_editor.setContent( content, {format:'text'});
 				this_editor.save( { no_events: true } );
 			}
 		};
 
+		function create_block_id() {
+
+			// get the curent number of blocks
+			var blocks = $('.pixbuilder-grid > ul > li'),
+				number_of_blocks = 1;
+
+			if ( $('.pixbuilder-grid > ul > li').length < 1 ) {
+				return number_of_blocks;
+			}
+
+			$('.pixbuilder-grid > ul > li').each( function (i, j) {
+				var id_nr = $( this ).attr('id').replace('block_', '');
+
+				if ( parseInt(id_nr) > number_of_blocks ) {
+					number_of_blocks = parseInt(id_nr) + 1;
+				} else {
+					number_of_blocks = number_of_blocks + 1;
+				}
+			});
+			
+			return parseInt(number_of_blocks);
+		}
 		/**
 		 * Events
 		 */
@@ -176,14 +173,16 @@
 		$(document).on('click', '.add_block', function (ev) {
 			ev.preventDefault();
 
+			var number_of_blocks = create_block_id();
+
 			var type = $(this).val(),
 				args = {
-					id: parseInt(number_of_blocks) + 1,
+					id: number_of_blocks,
 					type: type,
 					content: ''
 				};
 			var block_template = get_block_template(args);
-			number_of_blocks = parseInt(number_of_blocks) + 1;
+
 			gridster.add_widget(block_template, 2, 2);
 			//after we done update the json
 			$(document).trigger('pix_builder:serialize');
@@ -203,19 +202,22 @@
 			var id = $(this).closest('.item').attr('id').replace('block_', '');
 
 			if ( ! modal_container.hasClass('modal_opened') ) {
-				modal_container.addClass('modal_opened')
-					.show();
+				setTimeout(function () {
 
-				var content = $('#block_'+ id + ' .to_send').val();
+					modal_container.addClass('modal_opened')
+						.show();
 
-				if ( content !== "" ) {
-					set_pix_builder_editor_content( content );
-				} else {
-					set_pix_builder_editor_content( '' );
-				}
+					var content = $('#block_'+ id + ' .to_send').val();
 
-				// ensure the editor is on visual
-				switchEditors.go( 'pix_builder_editor', 'tmce' );
+					if ( content !== "" ) {
+						set_pix_builder_editor_content( content );
+					} else {
+						set_pix_builder_editor_content( '' );
+					}
+
+					// ensure the editor is on visual
+					switchEditors.go( 'pix_builder_editor', 'tmce' );
+				}, 600);
 
 				modal_container.find('.insert_editor_content').data('block_id', id );
 			}
@@ -248,10 +250,6 @@
 			$(document).trigger('pix_builder:serialize');
 
 			close_editor_modal();
-		});
-
-		$(document).on('click', '#publishing-action', function(){
-			serialize_pix_builder_values();
 		});
 
 		// serialize pix_builder values
@@ -316,6 +314,34 @@
 			'<div class="item__controls">' +
 			'<ul class="nav nav--controls">' +
 			'<li class="edit">'+controls_content+'</li>' +
+			'<li class="position"><span>Position</span>' +
+				'<div class="position__ui">' +
+					'<div class="position__ui-title">Alignment</div>' +
+					'<div class="position__ui-body">' +
+						'<div class="position__ui-row">' +
+							'<div class="position__ui-cell top">' +
+								'<div class="position__ui-handle">top</div>' +
+							'</div>' +
+						'</div>' +
+						'<div class="position__ui-row">' +
+							'<div class="position__ui-cell left' + ((args.type === 'editor') ? ' active' : '') + '">' +
+								'<div class="position__ui-handle"' + ((args.type === 'editor') ? ' data-step="1"' : '') + '>left</div>' +
+							'</div>' +
+							'<div class="position__ui-cell middle' + ((args.type !== 'editor') ? ' active' : '') + '">' +
+								'<div class="position__ui-handle">middle</div>' +
+							'</div>' +
+							'<div class="position__ui-cell right">' +
+								'<div class="position__ui-handle">right</div>' +
+							'</div>' +
+						'</div>' +
+						'<div class="position__ui-row">' +
+							'<div class="position__ui-cell bottom">' +
+								'<div class="position__ui-handle">bottom</div>' +
+							'</div>' +
+						'</div>' +
+					'</div>' +
+				'</div>' +
+			'</li>' +
 			'<li class="remove remove_block"><span>Remove</span></li>' +
 			'<li class="move drag_handler"></li>' +
 			'</ul>' +
@@ -418,6 +444,77 @@
 		});
 
 		$(".pixbuilder-controls").fixer({gap: 40});
+
+		$(document).on('mouseover', '.position', function() {
+			$('.pixbuilder-grid').addClass('is--over-controls');
+		});
+
+		$(document).on('mouseout', '.position', function() {
+			$('.pixbuilder-grid').removeClass('is--over-controls');
+		});
+
+		// margins?
+		var $grid = $('.pixbuilder-grid');
+
+		$grid.on('click', '.position__ui-cell', function(e) {
+			var $cell 		= $(this),
+                $container  = $cell.closest('.position__ui'),
+                $item       = $cell.find('.position__ui-handle'),
+                step        = $item.attr('data-step'),
+                $active     = $container.find('.position__ui-cell.active'),
+                $turnOff    = $container.find('.position__ui-cell.middle');
+
+			if ( $cell.is('.middle') ) $turnOff = $active;
+            if ( $cell.is('.top') && $active.filter('.bottom').length ) $turnOff = $turnOff.add($active.filter('.bottom'));
+            if ( $cell.is('.right') && $active.filter('.left').length ) $turnOff = $turnOff.add($active.filter('.left'));
+            if ( $cell.is('.bottom') && $active.filter('.top').length ) $turnOff = $turnOff.add($active.filter('.top'));
+            if ( $cell.is('.left') && $active.filter('.right').length ) $turnOff = $turnOff.add($active.filter('.right'));
+
+            $turnOff.removeClass('active').find('.position__ui-handle').attr('data-step', 0);
+            step = typeof step === "undefined" ? 1 : step == 3 ? 0 : parseInt(step) + 1;
+
+            $item.attr('data-step', step);
+            $cell.toggleClass('active', !!step);
+
+            $active     = $container.find('.position__ui-cell.active');
+
+            if ( ! $active.filter('.active').length ) {
+                $container.find('.position__ui-cell.middle').addClass('active');
+            }
+
+            updateCell($cell);
+		});
+
+		$grid.on('mouseenter', '.position', function(e) {
+			$grid.css('z-index', '1200');
+		});
+
+		$grid.on('mouseleave', '.position', function(e) {
+			setTimeout(function() {
+				$grid.css('z-index', '');
+			}, 200);
+		});
+
+        $('.position__ui-cell').each(function() { updateCell($(this)); });
+
+        function updateCell($cell) {
+            var $container  = $cell.closest('.position__ui'),
+                $active     = $container.find('.position__ui-cell.active'),
+                $item       = $cell.find('.position__ui-handle'),
+                step        = $item.attr('data-step'),
+                $content    = $item.closest('.item').find('.item__content'),
+                props       = ['top', 'right', 'bottom', 'left'];
+
+            for (var i = 0; i < props.length; i++)
+                for (var j = 0; j < 4; j++)
+                    $content.removeClass(props[i] + '-' + j);
+
+            // update block
+            for (var i = 0; i < props.length; i++) {
+                var $prop = $active.filter('.'+props[i]);
+                if ( $prop.length ) $content.addClass(props[i] + '-' + $prop.find('.position__ui-handle').attr('data-step'));
+            }
+        }
 
 	}); /* Window.load */
 

@@ -6,32 +6,70 @@
  */
 ?>
 
-<?php if ( listable_using_facetwp() ) :
+<?php if ( listable_using_facetwp() ) : ?>
 
-	echo '<div class="job_filters"><div class="search_jobs">';
-	$facets = listable_get_facets_by_area( 'listings_archive_visible' );
-	$navigation_facets = listable_get_facets_by_area( 'navigation_bar' );
+	<div class="job_filters">
+		<div class="search_jobs">
 
-	$all_facets = listable_get_all_facets();
+		<?php
+		$facets = listable_get_facets_by_area( 'listings_archive_visible' );
+		$hidden_facets = listable_get_facets_by_area( 'listings_archive_hidden' );
+		$navigation_facets = listable_get_facets_by_area( 'navigation_bar' );
 
-	if (! empty( $facets ) ) {
-		foreach ( $facets as $key => $facet ) {
-			foreach ( $navigation_facets as $nav_facet ) {
-				//@todo we should do a little bit of sanity check here - if the facet actually exists
-				if ( $facet['name'] == $nav_facet['name'] ) {
-					unset( $facets[ $key ] );
+		//$all_facets = listable_get_all_facets();
+
+		if ( ! empty( $facets ) ) {
+			foreach ( $facets as $key => $facet ) {
+
+				if ( ! empty( $navigation_facets ) ) {
+					foreach ( $navigation_facets as $nav_facet ) {
+						//@todo we should do a little bit of sanity check here - if the facet actually exists
+						if ( $facet['name'] == $nav_facet['name'] ) {
+							unset( $facets[ $key ] );
+						}
+					}
+				}
+
+				if ( ! empty( $hidden_facets ) ) {
+					foreach ( $hidden_facets as $hidden_facet ) {
+						//@todo we should do a little bit of sanity check here - if the facet actually exists
+						if ( $facet['name'] == $hidden_facet['name'] ) {
+							unset( $facets[ $key ] );
+						}
+					}
 				}
 			}
+
+			$facets = array_values( $facets );
+
+			listable_display_facets( $facets );
 		}
-		$facets = array_values( $facets );
 
-		listable_display_facets( $facets );
-	}
+		if ( ! empty( $hidden_facets ) ) { ?>
+			<div class="hidden_facets">
+				<?php listable_display_facets( $hidden_facets ); ?>
+			</div>
+		<?php } ?>
 
-	//cleanup the array
-	echo '</div></div>';
+		</div> <!-- .search-jobs -->
 
-else : ?>
+		<div class="mobile-buttons">
+			<button class="btn btn--filter"><?php esc_html_e( 'Filter', 'listable' ); ?>
+			<span><?php esc_html_e( 'Listings', 'listable' ); ?></span></button>
+			<button class="btn btn--view btn--view-map"><span><?php esc_html_e( 'Map View', 'listable' ); ?></span>
+			</button>
+			<button class="btn btn--view btn--view-cards">
+			<span><?php esc_html_e( 'Cards View', 'listable' ); ?> </span></button>
+		</div>
+	</div><!-- .job-filters -->
+	<?php if ( ! empty( $hidden_facets ) ) { ?>
+	<button class="toggle-hidden-facets  js-toggle-hidden-facets">
+		<span class="text--inactive"><?php esc_html_e( 'More filters', 'listable' ); ?></span>
+		<span class="text--active"><?php esc_html_e( 'Less filters', 'listable' ); ?></span>
+	</button>
+	<?php } ?>
+
+<?php else : ?>
 
 <?php wp_enqueue_script( 'wp-job-manager-ajax-filters' ); ?>
 
@@ -108,11 +146,6 @@ else : ?>
 		<?php }
 		do_action( 'job_manager_job_filters_search_jobs_end', $atts ); ?>
 	</div><!-- .search_jobs -->
-
-	<?php
-	if ( function_exists( 'facetwp_display' ) ) {
-		echo facetwp_display( 'facet', 'categories' );
-	} ?>
 
 	<div class="mobile-buttons">
 		<button class="btn btn--filter"><?php esc_html_e( 'Filter', 'listable' ); ?>

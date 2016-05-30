@@ -1,6 +1,27 @@
 <?php if ( $packages || $user_packages ) :
-	$checked = 1;
-	?>
+	function listable_get_woocommerce_price_format_on_paid_listings( $format, $currency_pos  ) {
+		$currency_pos = get_option( 'woocommerce_currency_pos' );
+		$format = '%1$s%2$s';
+
+		switch ( $currency_pos ) {
+			case 'left' :
+				$format = '<sup class="package__currency">%1$s</sup>%2$s';
+				break;
+			case 'right' :
+				$format = '%2$s<sup class="package__currency">%1$s</sup>';
+				break;
+			case 'left_space' :
+				$format = '<sup class="package__currency">%1$s</sup>&nbsp;%2$s';
+				break;
+			case 'right_space' :
+				$format = '%2$s&nbsp;<sup class="package__currency">%1$s</sup>';
+				break;
+		}
+		return $format;
+	}
+	add_filter( 'woocommerce_price_format', 'listable_get_woocommerce_price_format_on_paid_listings', 10, 2 );
+
+	$checked = 1; ?>
 	<?php if ( $user_packages ) : ?>
 		<h2 class="package-list__title"><?php _e( "Your packages", "listable" ); ?></h2>
 		<div class="package-list  package-list--user">
@@ -54,11 +75,11 @@
 						<?php echo $product->get_title(); ?>
 					</h2>
 					<div class="package__price">
-						<?php if ( $product->price ): ?>
-							<sup class="package__currency"><?php echo get_woocommerce_currency_symbol(); ?></sup><?php echo $product->price; ?>
-						<?php else: ?>
-							<?php _e('Free', 'listable'); ?>
-						<?php endif; ?>
+						<?php if ( $product->price ){
+							echo wc_price( $product->price  );
+						} else {
+							esc_html_e('Free', 'listable');
+						} ?>
 					</div>
 					<div class="package__description">
 						<?php echo apply_filters( 'woocommerce_short_description', $product->post->post_excerpt ) ?>

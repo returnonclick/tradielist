@@ -27,7 +27,7 @@ get_header(); ?>
 			}
 			?>
 			<header class="page-header<?php if($blog_has_featured_image) echo ' has-featured-image'; ?>">
-				<?php if($blog_has_featured_image): ?><div class="page-header-background" style="background-image: url('<?php echo $image; ?>')"></div><?php endif; ?>
+				<?php if($blog_has_featured_image): ?><div class="page-header-background" style="background-image: url('<?php echo listable_get_inline_background_image( $image ); ?>')"></div><?php endif; ?>
 				<div class="header-content">
 				<h1 class="page-title"><?php echo get_the_title( $page_for_posts ); ?></h1>
 

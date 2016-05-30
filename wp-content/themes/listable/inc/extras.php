@@ -55,6 +55,10 @@ function listable_body_classes( $classes ) {
 		$classes[] = 'is--using-facetwp';
 	}
 
+	if ( isset( $post->post_content ) && has_shortcode( $post->post_content, 'jobs_by_tag' ) ) {
+		$classes[] = 'jobs-by-tags-page';
+	}
+
 	return $classes;
 }
 
@@ -365,7 +369,7 @@ function listable_get_post_image_src( $post_id = null, $size = 'thumbnail' ) {
 	$data = wp_get_attachment_image_src( $attach_id, $size );
 	// if this attachment has an url for this size, return it
 	if ( isset( $data[0] ) && ! empty ( $data ) ) {
-		return $data[0];
+		return listable_get_inline_background_image( $data[0] );
 	}
 
 	return false;
@@ -592,6 +596,19 @@ function listable_get_random_hero_object( $post_id = null ) {
 }
 
 /**
+ * Check if there is a photon version of the required image
+ * @param $url
+ *
+ * @return mixed|void
+ */
+function listable_get_inline_background_image( $url ) {
+	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'photon' ) && function_exists( 'jetpack_photon_url' ) ) {
+		return apply_filters( 'jetpack_photon_url', $url );
+	}
+	return $url;
+}
+
+/**
  * This filter will ensure that after an users logs in from the iframe modal doesn't get stuck in it.
  *
  * @param $user_login
@@ -771,7 +788,8 @@ function listable_get_shortcode_param_value( $content, $shortcode, $param, $defa
 				$value = listable_preg_match_array_get_value_by_key( $result, $param );
 
 				if ( null !== $value ) {
-					$param_value = $value;
+					//just in case someone has magic_quotes activated
+					$param_value = stripslashes_deep( $value );
 				}
 			}
 		}
@@ -1121,7 +1139,8 @@ class Listable_Walker_Nav_Menu extends Walker_Nav_Menu {
 		if( isset( $item->url ) && 'custom' == $item->type  && '#listablecurrentusername' == $item->url ) {
 			//Get the current user display name
 			global $current_user;
-			get_currentuserinfo();
+
+			wp_get_current_user();
 
 			$avatar_args = array(
 				// get_avatar_data() args.

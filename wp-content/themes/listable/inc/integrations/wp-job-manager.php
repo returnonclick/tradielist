@@ -32,7 +32,7 @@ function listable_change_job_into_listing( $args ) {
 		'parent'             => sprintf( esc_html__( 'Parent %s', 'listable' ), $singular )
 	);
 	$args['description'] = sprintf( esc_html__( 'This is where you can create and manage %s.', 'listable' ), $plural );
-	$args['supports']    = array( 'title', 'editor', 'custom-fields', 'publicize', 'comments' );
+	$args['supports']    = array( 'title', 'editor', 'custom-fields', 'publicize', 'comments', 'thumbnail' );
 	$args['rewrite']     = array( 'slug' => 'listings' );
 
 	$permalinks = get_option( 'listable_permalinks_settings' );
@@ -271,6 +271,7 @@ function listabe_filter_wp_jobs_manager_settings( $args ) {
 
 	return $args;
 }
+
 add_filter( 'job_manager_settings', 'listabe_filter_wp_jobs_manager_settings', 9999999 );
 
 function listable_replace_jobs_with_listings( &$item, $key ) {
@@ -330,7 +331,6 @@ function listable_add_hours_field( $fields ) {
 }
 
 add_filter( 'job_manager_job_listing_data_fields', 'listable_add_hours_field', 1 );
-add_filter( 'submit_job_form_fields', 'custom_submit_job_form_fields' );
 
 function listable_add_total_jobs_found_number_to_ajax_response( $results, $jobs ) {
 	if ( true === $results['found_jobs'] ) {
@@ -361,22 +361,24 @@ function custom_submit_job_form_fields( $fields ) {
 	$fields['job']['job_title']['placeholder'] = esc_html__( 'Your listing name', 'listable' );
 
 	$fields['company']['company_tagline']['priority']    = 2.1;
-	$fields['company']['company_tagline']['placeholder'] = esc_html__( 'e.g Speciality Coffe Shop', 'listable' );
-	$fields['company']['company_tagline']['description'] = sprintf( '<span class="description_tooltip left">%s</span>', esc_html__( 'Keep it short and descriptive as it will appear on search results instead of the ling description', 'listable' ) );
+	$fields['company']['company_tagline']['placeholder'] = esc_html__( 'e.g Speciality Coffee Shop', 'listable' );
+	$fields['company']['company_tagline']['description'] = sprintf( '<span class="description_tooltip left">%s</span>', esc_html__( 'Keep it short and descriptive as it will appear on search results instead of the link description', 'listable' ) );
 
 	$fields['job']['job_description']['priority']    = 2.2;
-	$fields['job']['job_description']['type']        = 'textarea';
+//	$fields['job']['job_description']['type']        = 'textarea';
 	$fields['job']['job_description']['placeholder'] = esc_html__( 'An overview of your listing and the things you love about it.', 'listable' );
 
 	$fields['job']['job_category']['priority']    = 2.3;
 	$fields['job']['job_category']['placeholder'] = esc_html__( 'Choose one or more categories', 'listable' );
 
+	$fields['job']['job_category']['label'] = esc_html__( 'Listing category', 'listable' );
 	$fields['job']['job_category']['description'] = sprintf( '<span class="description_tooltip right">%s</span>', esc_html__( 'Visitors can filter their search by the categories and amenities they want - so make sure you choose them wisely and include all the relevant ones', 'listable' ) );
 
 	if ( class_exists( 'WP_Job_Manager_Job_Tags' ) ) {
 		$fields['job']['job_tags']['priority']    = 2.4;
 		$fields['job']['job_tags']['required']    = false;
 		$fields['job']['job_tags']['placeholder'] = esc_html__( 'Add tags', 'listable' );
+		$fields['job']['job_tags']['label']       = esc_html__( 'Listing tags', 'listable' );
 		$fields['job']['job_tags']['description'] = esc_html__( 'Visitors can filter their search by the amenities too, so make sure you include all the relevant ones.', 'listable' );
 	}
 
@@ -384,9 +386,20 @@ function custom_submit_job_form_fields( $fields ) {
 	$fields['job']['job_location']['placeholder'] = esc_html__( 'e.g 34 Wigmore Street, London', 'listable' );
 	$fields['job']['job_location']['description'] = esc_html__( 'Leave this blank if the location is not important.', 'listable' );
 
-	$fields['company']['company_logo']['label']       = esc_html__( 'Gallery Images', 'listable' );
+
+	$fields['company']['main_image']['label']              = esc_html__( 'Gallery Images', 'listable' );
+	$fields['company']['main_image']['priority']           = 2.6;
+	$fields['company']['main_image']['required']           = false;
+	$fields['company']['main_image']['type']               = 'file';
+	$fields['company']['main_image']['ajax']               = true;
+	$fields['company']['main_image']['placeholder']        = '';
+	$fields['company']['main_image']['allowed_mime_types'] = $fields['company']['company_logo']['allowed_mime_types'];
+	$fields['company']['main_image']['multiple']           = true;
+	$fields['company']['main_image']['description']        = esc_html__( 'The first image will be shown on listing cards.', 'listable' );
+
+	$fields['company']['company_logo']['label']       = esc_html__( 'Logo', 'listable' );
 	$fields['company']['company_logo']['priority']    = 2.6;
-	$fields['company']['company_logo']['multiple']    = true;
+	$fields['company']['company_logo']['multiple']    = false;
 	$fields['company']['company_logo']['description'] = esc_html__( 'The first image will be shown on listing cards.', 'listable' );
 
 	$fields['job']['job_hours'] = array(
@@ -408,7 +421,8 @@ function custom_submit_job_form_fields( $fields ) {
 
 	$fields['company']['company_website']['priority']    = 2.9;
 	$fields['company']['company_website']['placeholder'] = esc_html__( 'e.g yourwebsite.com, London', 'listable' );
-	$fields['company']['company_website']['description'] = esc_html__( 'You can add more similar panels to better help the user fill the form', 'listable' );
+	$fields['company']['company_website']['description'] = sprintf( '<span class="description_tooltip left">%s</span>', esc_html__( 'You can add more similar panels to better help the user fill the form', 'listable' ) );
+
 
 
 	// temporary unsets
@@ -421,12 +435,24 @@ function custom_submit_job_form_fields( $fields ) {
 
 	return $fields;
 }
+add_filter( 'submit_job_form_fields', 'custom_submit_job_form_fields' );
+
+function listable_maybe_clean_main_images_on_submit( $job_data, $post_title, $post_content, $status, $values ) {
+	if ( empty( $values['main_image'] ) ) {
+		$listing = get_page_by_title( $post_title, null, 'job_listing' );
+		if ( ! is_wp_error( $listing ) && isset( $listing->ID ) ) {
+			update_post_meta( $listing->ID, 'main_image', '' );
+		}
+	}
+	return $job_data;
+}
+add_filter( 'submit_job_form_save_job_data', 'listable_maybe_clean_main_images_on_submit', 10, 5);
 
 add_action( 'job_manager_update_job_data', 'listable_on_listing_submit', 10, 2 );
 
 function listable_on_listing_submit( $id, $values ) {
 
-	$company_logo = $values['company']['company_logo'];
+	$company_logo = $values['company']['main_image'];
 
 	// turn company logo in featured image
 	if ( isset( $company_logo ) && ! empty( $company_logo ) ) {
@@ -457,6 +483,40 @@ function listable_on_listing_submit( $id, $values ) {
 		update_post_meta( $id, 'main_image', $main_image_string );
 	}
 }
+
+function listable_validate_job_submission_fields( $tru = true, $fields, $values ) {
+	$company_logo = $values['company']['company_logo'];
+
+	// turn company logo in featured image
+	if ( isset( $company_logo ) && ! empty( $company_logo ) ) {
+
+		$main_image_string = '';
+
+		// we may have a simple string(on image upload) or an array of images, so we need to treat them all
+		if ( is_numeric( $company_logo ) ) {
+			$attach_id = listable_get_attachment_id_from_url( $company_logo );
+			if ( ! empty( $attach_id ) && is_numeric( $attach_id ) ) {
+				$main_image_string = $attach_id;
+			}
+		} elseif ( is_array( $company_logo ) && ! empty( $company_logo ) ) {
+
+			foreach ( $company_logo as $key => $url ) {
+				$attach_id = listable_get_attachment_id_from_url( $url );
+				if ( ! empty( $attach_id ) && is_numeric( $attach_id ) ) {
+					$main_image_string .= $attach_id;
+
+					if ( $key < count( $company_logo ) ) {
+						$main_image_string .= ',';
+					}
+				}
+			}
+		}
+	}
+
+	return $values;
+}
+
+add_filter( 'submit_job_form_validate_fields', 'listable_validate_job_submission_fields', 10, 3 );
 
 function listable_job_listing_admin_columns( $columns ) {
 	if ( ! is_array( $columns ) ) {
@@ -526,6 +586,12 @@ function listable_activate_comments_upon_creation( $job_data, $post_title, $post
 	//modify the listing data on preview
 	if ( 'preview' === $status ) {
 		$job_data['comment_status'] = 'open';
+	} else {
+		// but in case this is an edit, just take the users decision to allow or not comments
+		$listing = get_page_by_title( $post_title, null, 'job_listing' );
+		if ( ! is_wp_error( $listing ) && isset( $listing->comment_status ) ) {
+			$job_data['comment_status'] = $listing->comment_status;
+		}
 	}
 
 	return $job_data;
@@ -559,10 +625,26 @@ function listable_wrap_the_listings( $html ) {
 
 add_filter( 'job_manager_job_listings_output', 'listable_wrap_the_listings', 10, 1 );
 
+function listable_listings_page_shortcode_get_show_map_param() {
+	//if there is a page set in the Listings settings use that
+	$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
+	if ( false !== $listings_page_id ) {
+		$listings_page = get_post( $listings_page_id );
+		if ( ! is_wp_error( $listings_page ) ) {
+			return listable_jobs_shortcode_get_show_map_param( $listings_page->post_content );
+		}
+	}
+
+	//by default we will show the map
+	return true;
+}
+
 function listable_jobs_shortcode_get_show_map_param( $content = '' ) {
-	if ( empty( $content ) ) {
+	global $post;
+	if ( empty( $content ) && isset( $post->post_content ) ) {
 		$content = get_the_content();
-		if ( empty( $content ) ) {
+		//if we are on an archive (like category or tag) ignore the description (content)
+		if ( is_archive() || empty( $content ) ) {
 			//check to see if we have a global shortcode - probably coming from a archive template
 			global $current_jobs_shortcode;
 			if ( isset( $current_jobs_shortcode ) && ! empty( $current_jobs_shortcode ) ) {
@@ -582,6 +664,82 @@ function listable_jobs_shortcode_get_show_map_param( $content = '' ) {
 
 	//make sure that $show_map is actually bool
 	return listable_string_to_bool( $show_map );
+}
+
+function listable_listings_page_shortcode_get_orderby_param() {
+	//if there is a page set in the Listings settings use that
+	$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
+	if ( false !== $listings_page_id ) {
+		$listings_page = get_post( $listings_page_id );
+		if ( ! is_wp_error( $listings_page ) ) {
+			return listable_jobs_shortcode_get_orderby_param( $listings_page->post_content );
+		}
+	}
+
+	//the default orderby
+	return 'featured';
+}
+
+function listable_jobs_shortcode_get_orderby_param( $content = '' ) {
+	if ( empty( $content ) ) {
+		$content = get_the_content();
+		if ( empty( $content ) ) {
+			//check to see if we have a global shortcode - probably coming from a archive template
+			global $current_jobs_shortcode;
+			if ( isset( $current_jobs_shortcode ) && ! empty( $current_jobs_shortcode ) ) {
+				$content = $current_jobs_shortcode;
+			} else {
+				//if there is no content of the current page/post and no global shortcode
+				return true;
+			}
+		}
+	}
+	//lets see if we have a orderby parameter
+	$orderby = listable_get_shortcode_param_value( $content, 'jobs', 'orderby', 'featured' );
+	//if it is a string like "true" we need to remove the "
+	if ( is_string( $orderby ) ) {
+		$orderby = str_replace( '"', '', $orderby );
+	}
+
+	return $orderby;
+}
+
+function listable_listings_page_shortcode_get_order_param() {
+	//if there is a page set in the Listings settings use that
+	$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
+	if ( false !== $listings_page_id ) {
+		$listings_page = get_post( $listings_page_id );
+		if ( ! is_wp_error( $listings_page ) ) {
+			return listable_jobs_shortcode_get_order_param( $listings_page->post_content );
+		}
+	}
+
+	//the default order
+	return 'DESC';
+}
+
+function listable_jobs_shortcode_get_order_param( $content = '' ) {
+	if ( empty( $content ) ) {
+		$content = get_the_content();
+		if ( empty( $content ) ) {
+			//check to see if we have a global shortcode - probably coming from a archive template
+			global $current_jobs_shortcode;
+			if ( isset( $current_jobs_shortcode ) && ! empty( $current_jobs_shortcode ) ) {
+				$content = $current_jobs_shortcode;
+			} else {
+				//if there is no content of the current page/post and no global shortcode
+				return true;
+			}
+		}
+	}
+	//lets see if we have a order parameter
+	$order = listable_get_shortcode_param_value( $content, 'jobs', 'order', 'DESC' );
+	//if it is a string like "true" we need to remove the "
+	if ( is_string( $order ) ) {
+		$order = str_replace( '"', '', $order );
+	}
+
+	return $order;
 }
 
 /*
@@ -713,3 +871,110 @@ function listable_wpjm_search_keywords_query( $query ) {
 }
 
 add_filter( 'get_search_query', 'listable_wpjm_search_keywords_query' );
+
+/**
+ * Modify the job_dashboard columns
+ *
+ * @param $columns
+ *
+ * @return array
+ */
+function listable_customize_job_dashboard_columns( $columns ) {
+	//for now we just don't want the filled column
+	if ( isset( $columns['filled'] ) ) {
+		unset( $columns['filled'] );
+	}
+
+	return $columns;
+}
+
+add_filter( 'job_manager_job_dashboard_columns', 'listable_customize_job_dashboard_columns', 10 );
+
+function listable_customize_job_dashboard_actions( $actions, $job ) {
+	//for now we just want to remove the filled actions
+	if ( isset( $actions['mark_not_filled'] ) ) {
+		unset( $actions['mark_not_filled'] );
+	}
+
+	if ( isset( $actions['mark_filled'] ) ) {
+		unset( $actions['mark_filled'] );
+	}
+
+	return $actions;
+}
+
+add_filter( 'job_manager_my_job_actions', 'listable_customize_job_dashboard_actions', 10, 2 );
+
+/**
+ * Function borrowed from woocommerce
+ * @param array $args
+ *
+ * @return mixed
+ */
+function listable_display_formatted_address( $args = array() ) {
+	echo listable_get_formatted_address();
+}
+
+function listable_get_formatted_address ( $post = null, $args = array() ) {
+
+	if ( $post === null ) {
+		global $post;
+	}
+
+	$address = get_the_job_location();
+
+	if ( empty( $address ) && isset( $post->_job_location ) ) {
+		$address = $post->_job_location;
+	}
+
+	if ( empty( $address ) ) {
+		return false;
+	}
+	
+	if ( true == apply_filters( 'listable_skip_geolocation_formatted_address', false ) ) {
+		//we will use the address inputed by the user
+		return $address;
+	}
+
+	$default_args = array(
+		'country'    => get_locale()
+	);
+
+	$args = array_map( 'trim', wp_parse_args( $args, $default_args ) );
+
+	extract( $args );
+
+	// Get all formats
+	$formats = apply_filters( 'listable_localisation_address_formats', array(
+		'default' => '<div itemprop="streetAddress">
+			<span class="address__street">{geolocation_street}</span>
+			<span class="address__street-no">{geolocation_street_number}</span>
+		</div>
+		<span class="address__city" itemprop="addressLocality">{geolocation_city}</span>
+		<span class="address__postcode" itemprop="postalCode">{geolocation_postcode}</span>
+		<span class="address__state-short" itemprop="addressRegion">{geolocation_state_short}</span>
+		<span class="address__country-short" itemprop="addressCountry">{geolocation_country_short}</span>'
+	));
+
+	// Get format for the address' country
+	$format = ( isset( $country ) && $country && isset( $formats[ $country ] ) ) ? $formats[ $country ] : $formats['default'];
+
+	// Substitute address parts into the string
+	$replace = array_map( 'esc_html', apply_filters( 'listable_formatted_address_replacements', array(
+		'{geolocation_street}' => trim( get_post_meta( $post->ID, 'geolocation_street', true ), '' ),
+		'{geolocation_street_number}' => trim( get_post_meta( $post->ID, 'geolocation_street_number', true ), '' ),
+		'{geolocation_city}' => trim( get_post_meta( $post->ID, 'geolocation_city', true ), '' ),
+		'{geolocation_postcode}' => trim( get_post_meta( $post->ID, 'geolocation_postcode', true ), '' ),
+		'{geolocation_state_short}' => trim( get_post_meta( $post->ID, 'geolocation_state_short', true ), '' ),
+		'{geolocation_country_short}' => trim( get_post_meta( $post->ID, 'geolocation_country_short', true ), '' ),
+	), $args ) );
+
+	$formatted_address = str_replace( array_keys( $replace ), $replace, $format );
+
+	// Clean up white space
+	$formatted_address = preg_replace( '/  +/', ' ', trim( $formatted_address ) );
+	$formatted_address = preg_replace( '/\n\n+/', "\n", $formatted_address );
+
+	// We're done!
+	return $formatted_address;
+}

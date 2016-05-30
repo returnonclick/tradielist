@@ -27,41 +27,44 @@ if ( is_array( $terms ) || is_object( $terms ) ) {
 	}
 }
 
-$listing_classes = 'card card--listing ';
+$listing_classes = 'card  card--listing';
 $listing_is_claimed = false;
+$listing_is_featured = false;
+
+if ( is_position_featured($post) ) $listing_is_featured = true;
+
 if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
-	$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array() );
+	$classes = WP_Job_Manager_Claim_Listing()->listing->add_post_class( array(), '', $post->ID );
 
 	if ( isset( $classes[0] ) && ! empty( $classes[0] ) ) {
-		$listing_classes .= $classes[0];
+		$listing_classes .= '  ' . $classes[0];
 
 		if( $classes[0] == 'claimed' )
 			$listing_is_claimed = true;
 	}
-} ?>
+}
+
+if ( true === $listing_is_featured ) $listing_classes .= '  is--featured';
+
+$listing_classes = apply_filters( 'listable_listing_archive_classes', $listing_classes, $post ); ?>
 <a class="grid__item" href="<?php the_job_permalink(); ?>">
-	<article class="<?php echo $listing_classes; ?>" itemscope itemtype="http://schema.org/LocalBusiness"
-	         data-latitude="<?php echo get_post_meta( $post->ID, 'geolocation_lat', true ); ?>"
-	         data-longitude="<?php echo get_post_meta( $post->ID, 'geolocation_long', true ); ?>"
-	         data-img="<?php echo listable_get_post_image_src( $post->ID, 'listable-card-image' ); ?>"
-	         data-permalink="<?php the_job_permalink(); ?>"
-	         data-categories="<?php echo $termString; ?>"
+	<article class="<?php echo esc_attr( $listing_classes ); ?>" itemscope itemtype="http://schema.org/LocalBusiness"
+	         data-latitude="<?php echo esc_attr( get_post_meta( $post->ID, 'geolocation_lat', true ) ); ?>"
+	         data-longitude="<?php echo esc_attr( get_post_meta( $post->ID, 'geolocation_long', true ) ); ?>"
+	         data-img="<?php echo esc_attr( listable_get_post_image_src( $post->ID, 'listable-card-image' ) ); ?>"
+	         data-permalink="<?php esc_attr( the_job_permalink() ); ?>"
+	         data-categories="<?php echo esc_attr( $termString ); ?>"
 		<?php echo $data_output; ?> >
 		<aside class="card__image" style="background-image: url(<?php echo listable_get_post_image_src( $post->ID, 'listable-card-image' ); ?>);">
-			<?php
-			global $job_manager_bookmarks;
+			<?php if ( true === $listing_is_featured ): ?>
+			<span class="card__featured-tag"><?php esc_html_e( 'Featured', 'listable' ); ?></span>
+			<?php endif; ?>
 
-			if ( $job_manager_bookmarks !== null && method_exists( $job_manager_bookmarks, 'is_bookmarked' ) ) {
-				$bookmark_state = '';
+			<?php do_action('listable_job_listing_card_image_top', $post ); ?>
 
-				if (  $job_manager_bookmarks->is_bookmarked( $post->ID ) ) {
-					$bookmark_state = 'is--bookmarked';
-				} ?>
-				<div class="heart <?php echo $bookmark_state; ?>">
-					<?php get_template_part( 'assets/svg/heart-svg' ); ?>
-				</div>
-			<?php } ?>
-		</aside>
+			<?php do_action('listable_job_listing_card_image_bottom', $post ); ?>
+
+		</aside><!-- .card__image -->
 		<div class="card__content">
 			<h2 class="card__title" itemprop="name"><?php
 				echo get_the_title();
@@ -105,19 +108,12 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 								</div>
 							</li>
 						<?php } ?>
-					</ul>
+					</ul><!-- .card__tags -->
 				<?php } ?>
 				<div class="address  card__address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
-					<div itemprop="streetAddress">
-						<span class="address__street"><?php echo trim( get_post_meta( $post->ID, 'geolocation_street', true ), '' ); ?></span>
-						<span class="address__street-no"><?php echo trim( get_post_meta( $post->ID, 'geolocation_street_number', true ), '' ); ?></span>
-					</div>
-					<span class="address__city" itemprop="addressLocality"><?php echo trim( get_post_meta( $post->ID, 'geolocation_city', true ), '' ); ?></span>
-					<span class="address__postcode" itemprop="postalCode"><?php echo trim( get_post_meta( $post->ID, 'geolocation_postcode', true ), '' ); ?></span>
-					<span class="address__state-short" itemprop="addressRegion"><?php echo trim( get_post_meta( $post->ID, 'geolocation_state_short', true ), '' ); ?></span>
-					<span class="address__country-short" itemprop="addressCountry"><?php echo trim( get_post_meta( $post->ID, 'geolocation_country_short', true ), '' ); ?></span>
+					<?php echo listable_display_formatted_address( $post ); ?>
 				</div>
 			</footer>
-		</div>
-	</article>
-</a>
+		</div><!-- .card__content -->
+	</article><!-- .card.card--listing -->
+</a><!-- .grid__item -->

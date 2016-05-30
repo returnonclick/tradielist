@@ -398,10 +398,6 @@ function listable_display_frontpage_listing_categories( $default_count = 7 ) {
 		$term_list = array_slice( $all_categories, 0, $default_count);
 	}
 
-	if ( $term_list ) {
-		echo '<span class="cta-text">' . esc_html__( 'Or browse the highlights', 'listable' ) . '</span>';
-	}
-
 	foreach ( $term_list as $key => $term ) :
 		if ( ! $term || ( is_array( $term ) && isset( $term['invalid_taxonomy'] ) ) ) {
 			continue;
@@ -422,6 +418,10 @@ function listable_display_frontpage_listing_categories( $default_count = 7 ) {
 		</a>
 
 	<?php endforeach;
+
+	if ( $term_list ) {
+		echo '<div style="position: relative;"><span class="cta-text">' . esc_html__( 'Or browse the highlights', 'listable' ) . '</span></div>';
+	}
 }
 
 function listabe_get_the_password_form( $post = 0 ) {
@@ -459,7 +459,7 @@ add_filter( 'the_password_form', 'listabe_get_the_password_form' );
 function listable_get_listings_page_url( $default_link = null  ) {
 	//if there is a page set in the Listings settings use that
 	$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
-	if ( false !== $listings_page_id ) {
+	if ( ! empty( $listings_page_id ) ) {
 		return get_permalink( $listings_page_id );
 	}
 
@@ -467,18 +467,4 @@ function listable_get_listings_page_url( $default_link = null  ) {
 		return $default_link;
 	}
 	return get_post_type_archive_link( 'job_listing' );
-}
-
-function listable_listings_page_shortcode_get_show_map_param() {
-	//if there is a page set in the Listings settings use that
-	$listings_page_id = get_option( 'job_manager_jobs_page_id', false );
-	if ( false !== $listings_page_id ) {
-		$listings_page = get_post( $listings_page_id );
-		if ( ! is_wp_error( $listings_page ) ) {
-			return listable_jobs_shortcode_get_show_map_param( $listings_page->post_content );
-		}
-	}
-
-	//by default we will show the map
-	return true;
 }

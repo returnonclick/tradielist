@@ -43,9 +43,61 @@ function listable_remove_wp_job_manager_products_output() {
 }
 
 // Display products on listing page
-add_action( 'single_job_listing_end', 'listable_remove_wp_job_manager_products_output', 1 );add_filter('submit_job_steps', 'listable_change_submit_preview_function', 10, 1);
+add_action( 'single_job_listing_end', 'listable_remove_wp_job_manager_products_output', 1 );
+add_filter('submit_job_steps', 'listable_change_submit_preview_function', 10, 1);
 
+// Display product price on listing archives
+function listable_add_product_price_for_listing_archives( $post ) {
+	$output = '';
+	//get linked products
+	$products_IDs = listable_get_linked_products( $post->ID );
+	if ( ! empty( $products_IDs ) ) {
+		$first_productID = array_shift( $products_IDs );
+		$product = wc_get_product( $first_productID );
+		$output .= '<span class="product__price">' . $product->get_price_html() . '</span>';
+	}
 
+	echo $output;
+}
+add_action( 'listable_job_listing_card_image_bottom', 'listable_add_product_price_for_listing_archives', 10, 1 );
+
+function listable_get_linked_product_classes( $post ) {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return '';
+	}
+	//get linked products
+	$products_IDs = listable_get_linked_products( $post->ID );
+	if ( ! empty( $products_IDs ) ) {
+		$first_productID = array_shift( $products_IDs );
+		//get the product's classes
+		$classes = wc_product_post_class( array(), '', $first_productID );
+
+		if ( ! empty( $classes ) ) {
+			return 'product ' . implode( ' ', $classes );
+		} else {
+			return 'product';
+		}
+	}
+
+	return '';
+}
+
+/**
+ * @param string $classes
+ * @param WP_Post $post
+ *
+ * @return string
+ */
+function listable_add_linked_product_listing_classes( $classes, $post ) {
+	$product_classes = listable_get_linked_product_classes( $post );
+
+	if ( ! empty( $product_classes ) ) {
+		$classes .= ' ' . $product_classes;
+	}
+
+	return $classes;
+}
+add_filter( 'listable_listing_archive_classes', 'listable_add_linked_product_listing_classes', 10, 2 );
 
 /* -------- WIDGETS -------- */
 
