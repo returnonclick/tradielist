@@ -538,7 +538,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'label'   => __( 'Navy', 'listable' ),
 							'preview' => array(
 								'color-text'       => '#ffffff',
-								'background-card'  => '#64a97b',  /*  old color #001f63  */
+								'background-card'  => '#001f63', 
 								'background-label' => '#3a3a3a',
 								'font-main'        => 'Vidaloka',
 								'font-alt'         => 'Lato',
@@ -549,9 +549,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								// Site Header
 								'header_transparent'          => true,
 								'header_background_color'     => '#ffffff',
-								'site_title_color'            => '#64a97b',  /*  old color #001f63  */
+								'site_title_color'            => '#001f63', 
 								'search_color'                => '#3a3a3a',
-								'nav_link_color'              => '#64a97b',  /*  old color #001f63  */
+								'nav_link_color'              => '#001f63', 
 								'nav_active_color'            => '#4a5463',
 								'nav_button_color'            => '#000000',
 
@@ -567,13 +567,13 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'cards_background'            => '#ffffff',
 								'cards_radius'                => '6',
 								'thumbs_radius'               => '6',
-								'cards_title_color'           => '#64a97b',  /*  old color #001f63  */
+								'cards_title_color'           => '#001f63', 
 								'cards_text_color'            => '#666666',
-								'cards_icon_color'            => '#64a97b',  /*  old color #001f63  */
-								'cards_icon_border_color'     => '#64a97b',  /*  old color #001f63  */
+								'cards_icon_color'            => '#001f63', 
+								'cards_icon_border_color'     => '#001f63', 
 								'cards_icon_background_color' => '#ffffff',
 								'pin_background_color'        => '#ffffff',
-								'pin_icon_color'              => '#64a97b',  /*  old color #001f63  */
+								'pin_icon_color'              => '#001f63', 
 
 								// Pre Footer
 								'prefooter_background'        => '#002847',
@@ -585,7 +585,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'footer_credits_color'        => '#c1c1c1',
 
 								// Other Colors
-								'accent_color'                => '#64a97b',  /*  old color #001f63  */
+								'accent_color'                => '#001f63', 
 								'fields_color'                => '#848484',
 								'micro_color'                 => '#000000',
 
@@ -664,7 +664,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								'footer_credits_color'        => '#0c0c0c',
 
 								// Other Colors
-								'accent_color'                => '#64a97b',  /*  old color #001f63  */
+								'accent_color'                => '#001f63', 
 								'fields_color'                => '#848484',
 								'micro_color'                 => '#000000',
 

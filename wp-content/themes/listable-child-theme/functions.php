@@ -49,7 +49,25 @@ function listable_child_enqueue_styles() {
 	);
 }
 
+function bootstrap_scripts(){
+    wp_register_script( 'bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', array( 'jquery' ), '3.3.6', true );
+    wp_enqueue_script( 'bootstrap-js' );
+    
+    wp_register_script( 'bootstrap-toggle-js', 'https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js', array( 'jquery' ), '2.2.2', true );
+    wp_enqueue_script( 'bootstrap-toggle-js' );
+
+    wp_register_style( 'bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', array(), '3.3.6', 'all' );
+    wp_register_style( 'bootstrap-toggle-css', 'https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css', array(), '2.2.2', 'all' );
+
+    wp_enqueue_style( 'bootstrap-css' );
+    wp_enqueue_style( 'bootstrap-toggle-css' );
+  
+}
+
+
 add_action( 'wp_enqueue_scripts', 'listable_child_enqueue_styles' );
+add_action( 'wp_enqueue_scripts', 'bootstrap_scripts' );
+
 
 
 
@@ -116,3 +134,103 @@ function listable_child_overwrite_files() {
 // The default priority of any action is 10
 
 */
+
+
+
+/* ====== WIDGET TITLE LITTLE JOEY ==============*/
+
+add_action( 'widgets_init', function(){
+	register_widget( 'Form_Title' );
+});
+
+/**
+ * Form Title Widgets
+ */
+class Form_Title extends WP_Widget {
+
+	/**
+	 * Sets up the widgets name etc
+	 */
+	public function __construct() {
+		$widget_ops = array( 
+			'classname' => 'form_title',
+			'description' => 'Form Title',
+		);
+		parent::__construct( 'form_title', 'Form Title', $widget_ops );
+	}
+
+	/**
+	 * Outputs the content of the widget
+	 *
+	 * @param array $args
+	 * @param array $instance
+	 */
+	public function widget( $args, $instance ) {
+		echo $args['before_widget'];
+		if ( ! empty( $instance['title'] ) ) {
+			$fulltitle = $args['before_title'] . apply_filters( 'form_title', $instance['title'] ) . $args['after_title'];
+		}		?>
+		<div class="widget-form-title"> <?php echo $fulltitle; ?> </div>		<?php
+		echo $args['after_widget'];
+	}
+
+	/**
+	 * Outputs the options form on admin
+	 *
+	 * @param array $instance The widget options
+	 */
+	public function form( $instance ) {
+		$title = ! empty( $instance['title'] ) ? $instance['title'] : __( 'New title', 'text_domain' );
+		?>
+		<p>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e( esc_attr( 'Title:' ) ); ?></label> 
+		<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
+		</p>
+		<?php 
+	}
+
+	/**
+	 * Processing widget options on save
+	 *
+	 * @param array $new_instance The new options
+	 * @param array $old_instance The previous options
+	 */
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+
+		return $instance;
+	}
+} // class Form_Title_Widget
+
+
+//==== Function show categories (with icons and links) =======
+
+function list_categories($post){
+	$term_list = wp_get_post_terms(
+		$post->ID,
+		'job_listing_category',
+		array( 'fields' => 'all' )
+	);
+	$unique_category = "";
+	if ( ! empty( $term_list ) && ! is_wp_error( $term_list ) ) : 
+		foreach ( $term_list as $key => $term ) : ?>
+			<a href="<?php echo esc_url( get_term_link( $term ) ); ?>">
+				<?php
+				$icon_url      = listable_get_term_icon_url( $term->term_id );
+				$attachment_id = listable_get_term_icon_id( $term->term_id );
+				if ( ! empty( $icon_url ) ) { ?>
+					<span class="title-category-icon">
+						<?php listable_display_image( $icon_url, '', true, $attachment_id ); ?>
+					</span>
+				<?php } ?>
+			</a>	<?php 
+			$unique_category .= $term->name . " ";
+		endforeach;
+	endif;
+	return $unique_category;
+}
+
+
+		
+

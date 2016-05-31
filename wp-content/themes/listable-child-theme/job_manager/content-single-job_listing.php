@@ -50,9 +50,10 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 		<div class="grid">
 			<div class="grid__item  column-content  entry-content">
 				<header class="entry-header">
-					<nav class="single-categories-breadcrumb">
+					<!-- <nav class="single-categories-breadcrumb">
 						<a href="<?php echo listable_get_listings_page_url(); ?>"><?php esc_html_e( 'Listings', 'listable' ); ?></a> >>
 						<?php
+						/*
 						$term_list = wp_get_post_terms(
 							$post->ID,
 							'job_listing_category',
@@ -70,9 +71,23 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 									echo ' >>';
 								}
 							}
-						} ?>
-					</nav>
+						}  */ ?>
+					</nav> -->	
+					
 
+					<?php 
+					/* ===== COMPANY LOGO ==============
+					if($image_url = get_the_author_meta('custom_pic')){
+						?>
+						<div class="listing-company-logo" >
+							<img src="<?php echo $image_url; ?>" class="business-logo"  alt="Business Logo"> 
+						</div>
+						<?php
+
+					}	*/	
+
+					$category = list_categories($post);
+					?>
 					<h1 class="entry-title" itemprop="name"><?php
 						echo get_the_title();
 						if ( $listing_is_claimed ) :
@@ -81,7 +96,15 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 							echo '<span>';
 						endif;
 					?></h1>
-					<?php the_company_tagline( '<span class="entry-subtitle" itemprop="description">', '</span>' ); ?>
+
+					<span class="entry-subtitle" itemprop="description">	
+						<?php 
+						if(strlen(get_post_meta($post->ID,'geolocation_city',true)) > 2){
+							$strLocation = "at ".get_post_meta($post->ID,'geolocation_city',true);
+						}
+						echo $category . $strLocation ?> 
+					</span>
+					<?php //the_company_tagline( '<span class="entry-subtitle" itemprop="description">', '</span>' ); ?>
 
 					<?php
 					/**
