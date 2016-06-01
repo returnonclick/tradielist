@@ -53,14 +53,6 @@ h1 {
     font-size: 18px;
 }
 
-.business-logo{
-	max-height: 120px;
-    max-width: 120px;
-    float: left;
-    padding: 5px 10px 5px 0px;
-}
-
-
 .title-category-icon{
 	background-color: #64a97b;
 	color: #ffffff;
@@ -75,16 +67,17 @@ h1 {
     float: left;
 }
 
+.right-column{
+	position:relative; 
+	z-index:3;
+}
 
 /* -- Business Contact Widget -- */
 
-.widget_business_contact,
-.widget_business_registration,
-.widget_listing_content,
-.widget_text{
+.widget_business_contact{
 	border: none !important;
-	margin: 0 !important;
-	padding: 24px 0px !important;
+	/*margin: 0 !important;
+	padding: 24px 0px !important;*/
 }
 .business-title{
 	padding: 0;
@@ -92,12 +85,21 @@ h1 {
 }
 
 .business-label{
-	text-align: right;
-	padding: 7px 25px;
+	padding: 7px 5px;
 }
 .business-data{
 	text-align: left;
 	padding: 7px 5px;
+}
+.right{
+	text-align: right;
+}
+
+.listing--facebook:before {
+	content: "";
+	margin-right: 0.3125rem; 
+	position: relative;
+	top: 0.125rem;
 }
 
 /* -- End Business Contact Widget -- */
@@ -107,6 +109,10 @@ h1 {
     margin-top: -20px;
     border-top-right-radius: 0;
     border-top-left-radius: 0;
+    border-top-width: 0px;
+    background-color: white !important;
+    z-index: 10 !important;
+    display: block !important;
 }
 
 .form_title{
@@ -122,16 +128,9 @@ h1 {
 	font-weight: 400 !important	;
 }
 
-/*.entry-header:before {
-    background: white;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.075);
-    bottom: 0;
-    content: "";
-    display: block;
-    left: -999vw;
-    pointer-events: none;
+/*.entry-header{
+	border-bottom: 1px solid rgba(0, 0, 0, 0.075) !important;
+}
+.entry-header:before {
     position: relative !important;
-    right: -999vw;
-    top: 0;
-    z-index: -1;
 }*/

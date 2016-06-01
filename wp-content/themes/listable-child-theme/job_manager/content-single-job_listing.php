@@ -61,7 +61,7 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 								echo '<span>';
 							endif;
 						?></h1>
-						</header><!-- .entry-header -->
+						
 						<span class="entry-subtitle" itemprop="description">	
 						<?php 
 						$strLocation = "";
@@ -70,6 +70,7 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 						}
 						echo $category . $strLocation ?> 
 						</span>
+						</header><!-- .entry-header -->
 					</div>	<!-- /row -->
 					<div class="row">
 						<?php if ( is_active_sidebar( 'listing_content' ) ) : ?>
@@ -81,7 +82,7 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 
 				</div>	<!-- /col 	-->
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
-					<div class="row">
+					<div class="row right-column">
 						<?php if ( is_active_sidebar( 'listing__sticky_sidebar' ) ) : ?>
 							<div class="listing-sidebar  listing-sidebar--top  listing-sidebar--secondary">
 								<?php dynamic_sidebar('listing__sticky_sidebar'); ?>
