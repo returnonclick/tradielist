@@ -77,7 +77,11 @@ h1 {
 
 
 /* -- Business Contact Widget -- */
-.widget_business_contact{
+
+.widget_business_contact,
+.widget_business_registration,
+.widget_listing_content,
+.widget_text{
 	border: none !important;
 	margin: 0 !important;
 	padding: 24px 0px !important;
@@ -85,6 +89,15 @@ h1 {
 .business-title{
 	padding: 0;
 	margin: 0;
+}
+
+.business-label{
+	text-align: right;
+	padding: 7px 25px;
+}
+.business-data{
+	text-align: left;
+	padding: 7px 5px;
 }
 
 /* -- End Business Contact Widget -- */
@@ -97,7 +110,7 @@ h1 {
 }
 
 .form_title{
-	margin: -96px 0px 0px 0px !important;
+	margin: -91px 0px 0px 0px !important;
 	text-align: center;
 	background-color: rgba(100, 169, 123,0.75) !important;
 }
@@ -109,7 +122,7 @@ h1 {
 	font-weight: 400 !important	;
 }
 
-.entry-header:before {
+/*.entry-header:before {
     background: white;
     border-bottom: 1px solid rgba(0, 0, 0, 0.075);
     bottom: 0;
@@ -121,4 +134,4 @@ h1 {
     right: -999vw;
     top: 0;
     z-index: -1;
-}
+}*/
