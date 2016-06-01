@@ -27,47 +27,30 @@ specifically the 'Template: listable' line. */
 
 
 
-/*---- CONTACT FORM  Enquiry ---- */
-.listing-sidebar--secondary .widget_text{
-    margin-top: -20px;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-}
-
-.form_title{
-	margin: -101px 0px 0px 0px !important;
-	text-align: center;
-	background-color: rgba(100, 169, 123,0.75) !important;
-}
-
-#form_title-2 .widget_sidebar_title,	
-#form_title-3 .widget_sidebar_title{
-	color: rgba(255,255,255,1) !important;	
-	font-size: 22px !important;
-	font-weight: 400 !important	;
-}
-
-
 /*---- LISTING PAGE --- */
 .entry-title,
 .archive-title,
 h1 {
 	font-size: 1.5rem;
-	padding-left: 40px;
+	padding:  10px 10px 10px 40px;
 }
 
 @media only screen and (min-width: 740px) {
 	.entry-title,
 	.archive-title,
 	h1 {
-		font-size: 2.5rem;
+		font-size: 3rem;
 		padding-left: 70px;
+		padding:  8px 10px 8px 65px;
 	}
 }
 
 .single-job_listing .entry-subtitle {
     color: #474747;
-    padding: 10px 0px;
+    padding: 10px 0px 0px 0px;
+    font-family: Hanken;
+    font-weight: 500;
+    font-size: 18px;
 }
 
 .business-logo{
@@ -90,4 +73,52 @@ h1 {
     position: relative;
     line-height: 1.5;
     float: left;
+}
+
+
+/* -- Business Contact Widget -- */
+.widget_business_contact{
+	border: none !important;
+	margin: 0 !important;
+	padding: 24px 0px !important;
+}
+.business-title{
+	padding: 0;
+	margin: 0;
+}
+
+/* -- End Business Contact Widget -- */
+
+/*---- CONTACT FORM  Enquiry ---- */
+.listing-sidebar--secondary .widget_text{
+    margin-top: -20px;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.form_title{
+	margin: -96px 0px 0px 0px !important;
+	text-align: center;
+	background-color: rgba(100, 169, 123,0.75) !important;
+}
+
+#form_title-2 .widget_sidebar_title,	
+#form_title-3 .widget_sidebar_title{
+	color: rgba(255,255,255,1) !important;	
+	font-size: 22px !important;
+	font-weight: 400 !important	;
+}
+
+.entry-header:before {
+    background: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+    bottom: 0;
+    content: "";
+    display: block;
+    left: -999vw;
+    pointer-events: none;
+    position: relative !important;
+    right: -999vw;
+    top: 0;
+    z-index: -1;
 }

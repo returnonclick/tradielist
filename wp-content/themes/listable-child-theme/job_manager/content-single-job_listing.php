@@ -47,96 +47,56 @@ if ( class_exists( 'WP_Job_Manager_Claim_Listing' ) ) {
 	<?php if ( get_option( 'job_manager_hide_expired_content', 1 ) && 'expired' === $post->post_status ) : ?>
 		<div class="job-manager-info"><?php esc_html_e( 'This listing has expired.', 'listable' ); ?></div>
 	<?php else : ?>
-		<div class="grid">
-			<div class="grid__item  column-content  entry-content">
-				<header class="entry-header">
-					<!-- <nav class="single-categories-breadcrumb">
-						<a href="<?php echo listable_get_listings_page_url(); ?>"><?php esc_html_e( 'Listings', 'listable' ); ?></a> >>
-						<?php
-						/*
-						$term_list = wp_get_post_terms(
-							$post->ID,
-							'job_listing_category',
-							array(
-								"fields" => "all",
-								'orderby' => 'parent',
-							)
-						);
-
-						if ( ! empty( $term_list ) && ! is_wp_error( $term_list ) ) {
-							// @TODO make them order by parents
-							foreach ( $term_list as $key => $term ) {
-								echo '<a href="' . esc_url( get_term_link( $term ) ) . '">' . $term->name . '</a>';
-								if ( count( $term_list ) - 1 !== $key ) {
-									echo ' >>';
-								}
-							}
-						}  */ ?>
-					</nav> -->	
-					
-
-					<?php 
-					/* ===== COMPANY LOGO ==============
-					if($image_url = get_the_author_meta('custom_pic')){
-						?>
-						<div class="listing-company-logo" >
-							<img src="<?php echo $image_url; ?>" class="business-logo"  alt="Business Logo"> 
-						</div>
-						<?php
-
-					}	*/	
-
-					$category = list_categories($post);
-					?>
-					<h1 class="entry-title" itemprop="name"><?php
-						echo get_the_title();
-						if ( $listing_is_claimed ) :
-							echo '<span class="listing-claimed-icon">';
-							get_template_part('assets/svg/checked-icon');
-							echo '<span>';
-						endif;
-					?></h1>
-
-					<span class="entry-subtitle" itemprop="description">	
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<div class="row">
+						<header class="entry-header"> 
+						<?php $category = list_categories($post);		//see functions.php 	?>
+						<h1 class="entry-title" itemprop="name"><?php
+							echo get_the_title();
+							if ( $listing_is_claimed ) :
+								echo '<span class="listing-claimed-icon">';
+								get_template_part('assets/svg/checked-icon');
+								echo '<span>';
+							endif;
+						?></h1>
+						</header><!-- .entry-header -->
+						<span class="entry-subtitle" itemprop="description">	
 						<?php 
+						$strLocation = "";
 						if(strlen(get_post_meta($post->ID,'geolocation_city',true)) > 2){
-							$strLocation = "at ".get_post_meta($post->ID,'geolocation_city',true);
+							$strLocation = " ".get_post_meta($post->ID,'geolocation_city',true);
 						}
 						echo $category . $strLocation ?> 
-					</span>
-					<?php //the_company_tagline( '<span class="entry-subtitle" itemprop="description">', '</span>' ); ?>
+						</span>
+					</div>	<!-- /row -->
+					<div class="row">
+						<?php if ( is_active_sidebar( 'listing_content' ) ) : ?>
+							<div class="listing-sidebar  listing-sidebar--main">
+								<?php dynamic_sidebar('listing_content'); ?>
+							</div>
+						<?php endif; ?>
+					</div>  <!-- /row -->
 
-					<?php
-					/**
-					 * single_job_listing_start hook
-					 *
-					 * @hooked job_listing_meta_display - 20
-					 * @hooked job_listing_company_display - 30
-					 */
-					do_action( 'single_job_listing_start' );
-					?>
-				</header><!-- .entry-header -->
-				<?php if ( is_active_sidebar( 'listing_content' ) ) : ?>
-					<div class="listing-sidebar  listing-sidebar--main">
-						<?php dynamic_sidebar('listing_content'); ?>
-					</div>
-				<?php endif; ?>
-			</div> <!-- / .column-1 -->
+				</div>	<!-- /col 	-->
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
+					<div class="row">
+						<?php if ( is_active_sidebar( 'listing__sticky_sidebar' ) ) : ?>
+							<div class="listing-sidebar  listing-sidebar--top  listing-sidebar--secondary">
+								<?php dynamic_sidebar('listing__sticky_sidebar'); ?>
+							</div>
+						<?php endif; ?>
 
-			<div class="grid__item  column-sidebar">
-				<?php if ( is_active_sidebar( 'listing__sticky_sidebar' ) ) : ?>
-					<div class="listing-sidebar  listing-sidebar--top  listing-sidebar--secondary">
-						<?php dynamic_sidebar('listing__sticky_sidebar'); ?>
-					</div>
-				<?php endif; ?>
-
-				<?php if ( is_active_sidebar( 'listing_sidebar' ) ) : ?>
-					<div class="listing-sidebar  listing-sidebar--bottom  listing-sidebar--secondary">
-						<?php dynamic_sidebar('listing_sidebar'); ?>
-					</div>
-				<?php endif; ?>
-
-			</div><!-- / .column-2 -->
+						<?php if ( is_active_sidebar( 'listing_sidebar' ) ) : ?>
+							<div class="listing-sidebar  listing-sidebar--bottom  listing-sidebar--secondary">
+								<?php dynamic_sidebar('listing_sidebar'); ?>
+							</div>
+						<?php endif; ?>
+					</div>	<!-- /row -->
+				</div>
+			</div>
 		</div>
+
 	<?php endif; ?>
 </div>

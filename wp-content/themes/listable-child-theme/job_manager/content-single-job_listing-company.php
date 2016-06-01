@@ -15,7 +15,7 @@ $location = get_post_meta( get_the_ID(), '_job_location', true);
 $phone = get_post_meta( get_the_ID(), '_company_phone', true);
 $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 ?>
-<div class="single-meta">
+<div class="contact-details" >			<!-- class="single-meta"	-->
 	<?php
 	display_average_listing_rating();
 
@@ -26,7 +26,7 @@ $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 			<a class="listing-contact  listing--phone" href="tel:<?php echo $phone; ?>" itemprop="telephone"><?php echo $phone; ?></a>
 		<?php endif; ?>
 	<?php endif;
-
+	echo "<br />";
 	if ( ! empty( $twitter ) ) {
 		$twitter = preg_replace("[@]", "", $twitter);
 		if ( strlen( $twitter ) > 30 ) : ?>
@@ -35,7 +35,7 @@ $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 			<a class="listing-contact  listing--twitter" href="https://twitter.com/<?php echo $twitter; ?>" itemprop="url">@<?php echo $twitter; ?></a>
 		<?php endif; ?>
 	<?php }
-
+	echo "<br />";
 	/** temporary(or not) removed
 	if ( ! empty( $facebook_url ) ) { ?>
 		<!--a class="company_facebook"" href="<?php echo $facebook_url ?>"><?php _e( 'Facebook', 'listable'); ?></a-->
