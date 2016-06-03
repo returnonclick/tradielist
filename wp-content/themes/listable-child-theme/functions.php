@@ -141,8 +141,7 @@ function listable_child_overwrite_files() {
 require	get_stylesheet_directory() . '/inc/widgets.php';			//get from child theme directory
 //require get_template_directory() . '/inc/widgets.php';			//get from parent theme directory
 
-
-
+ 
 //==== Function show categories (with icons and links) =======
 
 function list_categories($post){

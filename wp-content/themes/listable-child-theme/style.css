@@ -25,6 +25,11 @@ If you wish however, you can copy the whole style.css file from the parent here 
 In that case please remember that you still need to retain the header above (replace the header of the parent style.css with the one above),
 specifically the 'Template: listable' line. */
 
+/*  OVERRIDING PARENT THEME ITEMS */
+a:focus, a:hover{
+	text-decoration: none!important;
+}
+
 
 
 /*---- LISTING PAGE --- */
@@ -118,7 +123,7 @@ h1 {
 .form_title{
 	margin: -91px 0px 0px 0px !important;
 	text-align: center;
-	background-color: rgba(100, 169, 123,0.75) !important;
+	background-color: rgba(55, 55, 55,0.75) !important;
 }
 
 #form_title-2 .widget_sidebar_title,	
@@ -128,9 +133,7 @@ h1 {
 	font-weight: 400 !important	;
 }
 
-/*.entry-header{
-	border-bottom: 1px solid rgba(0, 0, 0, 0.075) !important;
+/* ---- ALL widgets aligned left ----- */
+.listing-sidebar--main .widget{
+	padding-left: 0 !important;
 }
-.entry-header:before {
-    position: relative !important;
-}*/
