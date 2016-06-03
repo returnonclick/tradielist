@@ -137,3 +137,7 @@ h1 {
 .listing-sidebar--main .widget{
 	padding-left: 0 !important;
 }
+
+.alignment{
+	text-align: left;
+}

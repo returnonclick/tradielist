@@ -711,9 +711,10 @@ class Form_Title extends WP_Widget {
 	public function widget( $args, $instance ) {
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
-			$fulltitle = $args['before_title'] . apply_filters( 'form_title', $instance['title'] ) . $args['after_title'];
+			$fulltitle =  apply_filters( 'form_title', $instance['title'] ) ;			//$args['before_title'] .	. $args['after_title']
 		}		?>
-		<div class="widget-form-title"> <?php echo $fulltitle; ?> </div>		<?php
+		<div class="widget-form-title"> 
+			<h2 class="widget_sidebar_title alignment"><?php echo $fulltitle; ?></h2> </div>		<?php
 		echo $args['after_widget'];
 	}
 
