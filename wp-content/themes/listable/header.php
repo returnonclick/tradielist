@@ -24,16 +24,7 @@
 	<a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'listable' ); ?></a>
 
 	<header id="masthead" class="site-header  <?php if( is_page_template( 'page-templates/front_page.php' ) && (listable_get_option( 'header_transparent', true ) == true) ) echo 'header--transparent'; ?>" role="banner">
-		<?php
-		if ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) { // display the Site Logo if present ?>
-			<div class="site-branding  site-branding--image">
-				<?php jetpack_the_site_logo(); ?>
-			</div>
-		<?php } else { ?>
-			<div class="site-branding">
-				<h1 class="site-title  site-title--text"><a class="site-logo-link" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
-			</div><!-- .site-branding -->
-		<?php } ?>
+		<?php listable_display_logo(); ?>
 
 		<?php get_template_part( 'template-parts/header-fields' ); ?>
 

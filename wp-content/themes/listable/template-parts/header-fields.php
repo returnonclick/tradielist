@@ -30,30 +30,29 @@ if ( ! is_page_template( 'page-templates/front_page.php') ) :
 
 					<script>
 						(function($) {
-
 							$(document).on('keyup','.header-facet-wrapper input[type="text"]', function(e) {
 								if (e.which === 13) {
-									//wait a little bit
-									setTimeout(
-										function() {
-											//if the user presses ENTER/RETURN in a text field then redirect
-											facetwp_redirect_to_listings();
-											return false;
-										}, 500);
+									facetwp_redirect_to_listings();
 								}
 							});
 						})(jQuery);
 
 						function facetwp_redirect_to_listings() {
-							FWP.parse_facets();
-							FWP.set_hash();
+							//wait a little bit
+							setTimeout(
+								function() {
+									//if the user presses ENTER/RETURN in a text field then redirect
+									FWP.parse_facets();
+									FWP.set_hash();
 
-							var query_string = FWP.build_query_string();
-							if ('' != query_string) {
-								query_string = '?' + query_string;
-							}
-							var url = query_string;
-							window.location.href = '<?php echo listable_get_listings_page_url(); ?>' + url;
+									var query_string = FWP.build_query_string();
+									if ('' != query_string) {
+										query_string = '?' + query_string;
+									}
+									window.location.href = '<?php echo listable_get_listings_page_url(); ?>' + query_string;
+									return false;
+								}, 700);
+
 						}
 					</script>
 

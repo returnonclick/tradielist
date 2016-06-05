@@ -28,13 +28,13 @@ global $post; ?>
 						} ?>>
 							<?php if ( ! empty( $the_random_hero ) && property_exists( $the_random_hero, 'post_mime_type' ) && strpos( $the_random_hero->post_mime_type, 'video' ) !== false ) {
 								$mimetype = str_replace( 'video/', '', $the_random_hero->post_mime_type );
-								if ( has_post_thumbnail($the_random_hero->ID) ) {
-									$image = wp_get_attachment_url( get_post_thumbnail_id($the_random_hero->ID) );
+								if ( has_post_thumbnail( $the_random_hero->ID ) ) {
+									$image = wp_get_attachment_url( get_post_thumbnail_id( $the_random_hero->ID ) );
 									$poster = ' poster="' . $image . '" ';
 								} else {
 									$poster = ' ';
 								}
-								echo do_shortcode( '[video ' . $mimetype . '="' . $the_random_hero->guid . '"' . $poster . 'loop="true" autoplay="true"][/video]' );
+								echo do_shortcode( '[video ' . $mimetype . '="' . wp_get_attachment_url( $the_random_hero->ID ) . '"' . $poster . 'loop="true" autoplay="true"][/video]' );
 							} ?>
 						</div>
 						<div class="header-content">

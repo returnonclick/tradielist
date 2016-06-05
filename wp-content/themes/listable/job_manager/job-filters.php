@@ -91,7 +91,8 @@
 
 		<div class="select-categories">
 			<?php
-			if ( $show_categories && get_terms( 'job_listing_category' ) ) :
+			$has_listing_categories = get_terms( 'job_listing_category' );
+			if ( $show_categories && ! is_wp_error( $has_listing_categories ) && ! empty( $has_listing_categories ) ) :
 
 				//select the current category
 				if ( empty( $selected_category ) ) {

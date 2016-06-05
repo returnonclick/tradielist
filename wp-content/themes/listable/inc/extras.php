@@ -126,12 +126,13 @@ add_filter( 'default_hidden_meta_boxes', 'listable_force_display_the_excerpt_box
  *
  * @param $post
  */
-function listable_post_excerpt_meta_box( $post ) {
-	?>
-	<label class="screen-reader-text" for="excerpt"><?php _e( 'Page Subtitle', 'listable' ) ?></label>
-	<textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
-	<p><?php _e( 'This is the subtitle that will be shown in the page\'s Hero Area, below the page title.', 'listable' ); ?></p>
-	<?php
+if ( ! function_exists('listable_post_excerpt_meta_box' ) ) {
+	function listable_post_excerpt_meta_box( $post ) { ?>
+		<label class="screen-reader-text" for="excerpt"><?php esc_html_e( 'Page Subtitle', 'listable' ) ?></label>
+		<textarea rows="1" cols="40" name="excerpt" id="excerpt"><?php echo $post->post_excerpt; // textarea_escaped ?></textarea>
+		<p><?php esc_html_e( 'This is the subtitle that will be shown in the page\'s Hero Area, below the page title.', 'listable' ); ?></p>
+		<?php
+	}
 }
 
 function listable_change_page_excerpt_box_title() {
@@ -268,6 +269,7 @@ function listable_display_image( $url, $class = '', $wrap_as_img = true, $attach
 	}
 }
 
+
 /**
  * Return the gallery of images attached to the listing
  *
@@ -325,25 +327,28 @@ function listable_get_listing_gallery_ids( $listing_ID = null ) {
  *
  * @return array|bool|string
  */
-function listable_get_post_image_id( $post_ID = null ) {
 
-	if ( empty( $post_ID ) ) {
-		$post_ID = get_the_ID();
+if ( ! function_exists( 'listable_get_post_image_id' ) ) {
+	function listable_get_post_image_id( $post_ID = null ) {
+
+		if ( empty( $post_ID ) ) {
+			$post_ID = get_the_ID();
+		}
+
+		//get the presentation gallery if present
+		$gallery_ids = listable_get_listing_gallery_ids( $post_ID );
+
+		//now lets get the image (either from the presentation gallery or the featured image
+		// if there are second images, use them
+		if ( ! empty( $gallery_ids ) ) {
+			return $gallery_ids[0];
+		} else {
+			// fallback to featured image
+			return esc_sql( get_post_thumbnail_id( $post_ID ) );
+		}
+
+		return false;
 	}
-
-	//get the presentation gallery if present
-	$gallery_ids = listable_get_listing_gallery_ids( $post_ID );
-
-	//now lets get the image (either from the presentation gallery or the featured image
-	// if there are second images, use them
-	if ( ! empty( $gallery_ids ) ) {
-		return $gallery_ids[0];
-	} else {
-		// fallback to featured image
-		return esc_sql( get_post_thumbnail_id( $post_ID ) );
-	}
-
-	return false;
 }
 
 /**
@@ -354,25 +359,27 @@ function listable_get_post_image_id( $post_ID = null ) {
  *
  * @return bool
  */
-function listable_get_post_image_src( $post_id = null, $size = 'thumbnail' ) {
+if ( ! function_exists( 'listable_get_post_image_src' ) ) {
+	function listable_get_post_image_src( $post_id = null, $size = 'thumbnail' ) {
 
-	if ( empty( $post_id ) ) {
-		$post_id = get_the_ID();
-	}
+		if ( empty( $post_id ) ) {
+			$post_id = get_the_ID();
+		}
 
-	$attach_id = listable_get_post_image_id( $post_id );
+		$attach_id = listable_get_post_image_id( $post_id );
 
-	if ( empty( $attach_id ) || is_wp_error( $attach_id ) ) {
+		if ( empty( $attach_id ) || is_wp_error( $attach_id ) ) {
+			return false;
+		}
+
+		$data = wp_get_attachment_image_src( $attach_id, $size );
+		// if this attachment has an url for this size, return it
+		if ( isset( $data[0] ) && ! empty ( $data ) ) {
+			return listable_get_inline_background_image( $data[0] );
+		}
+
 		return false;
 	}
-
-	$data = wp_get_attachment_image_src( $attach_id, $size );
-	// if this attachment has an url for this size, return it
-	if ( isset( $data[0] ) && ! empty ( $data ) ) {
-		return listable_get_inline_background_image( $data[0] );
-	}
-
-	return false;
 }
 
 /**

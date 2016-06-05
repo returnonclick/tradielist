@@ -130,7 +130,7 @@ add_filter( 'facetwp_query_args', 'listable_facetwp_query_args', 10, 2 );
  * This is used to load the listings via AJAX
  */
 function listable_facetwp_template_html( $output, $class ) {
-	if ( 'listings' != $class->template[ 'name' ] || '' == $class->http_params['uri'] ) {
+	if ( 'listings' != $class->template[ 'name' ] || '' == $class->http_params['uri'] || is_single() ) {
 		return $output;
 	}
 
@@ -142,7 +142,6 @@ function listable_facetwp_template_html( $output, $class ) {
 	if ( $query->have_posts() ) {
 		while ( $query->have_posts() ) {
 			$query->the_post();
-
 			get_template_part( 'job_manager/content', 'job_listing' );
 		}
 		wp_reset_postdata();
@@ -181,10 +180,14 @@ function listable_fwp_index_wpjm_product_prices( $params, $class ) {
 		$product_ids = (array) maybe_unserialize( $params['facet_value'] );
 		foreach ( $product_ids as $id ) {
 			$product = wc_get_product( $id );
-			$price = $product->get_price();
-			$params['facet_value'] = $price;
-			$params['facet_display_value'] = $price;
+			if ( is_object( $product ) ) {
+				$price = $product->get_price();
+				$params['facet_value'] = $price;
+				$params['facet_display_value'] = $price;
+				$class->insert( $params );
+			}
 		}
+		return false; // skip default
 	}
 	return $params;
 }

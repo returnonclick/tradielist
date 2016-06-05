@@ -8,6 +8,7 @@
  */
 add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
 
+// replace the pagination with our own in the `woocommerce/loop/loop-end.php`
 remove_action( 'woocommerce_after_shop_loop', 'woocommerce_pagination', 10 );
 
 remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );

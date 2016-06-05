@@ -11,8 +11,6 @@ function listable_load_jetpack_compatibility() {
 	//first test if Jetpack is present and activated
 	// only if it is not present load the duplicated code from the theme
 	if ( ! class_exists( 'Jetpack' ) ) {
-		//these are safe as they do their own house cleaning
-		require_once get_template_directory() . '/inc/integrations/jetpack/site-logo.php';
 		//this is not safe -- needed to prefix the functions
 		require_once get_template_directory() . '/inc/integrations/jetpack/responsive-videos.php';
 	}
@@ -30,23 +28,6 @@ function listable_jetpack_setup() {
 		'footer'    => 'page',
 		'wrapper'   => false
 	) );
-
-
-	/**
-	 * Add theme support for site logo
-	 *
-	 * First, it's the image size we want to use for the logo thumbnails
-	 * Second, the 2 classes we want to use for the "Display Header Text" Customizer logic
-	 */
-	add_theme_support( 'site-logo', array(
-		'size'        => 'listable-site-logo',
-		'header-text' => array(
-			'site-title',
-			'site-description-text',
-		)
-	) );
-
-	add_image_size( 'listable-site-logo', 1360, 600, false );
 	add_theme_support( 'jetpack-responsive-videos' );
 
 } // end function listable_jetpack_setup
@@ -56,19 +37,24 @@ add_action( 'after_setup_theme', 'listable_jetpack_setup' );
  * Custom render function for Infinite Scroll.
  */
 function listable_infinite_scroll_render() {
-	while ( have_posts() ) : the_post(); ?>
+	while ( have_posts() ) : the_post();
 
-	<div class="grid__item  postcard">
-		<?php
-
-		/*
-		 * Include the Post-Format-specific template for the content.
-		 * If you want to override this in a child theme, then include a file
-		 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
+		/**
+		 * If this is a woocommerce archive, use the proper template card
 		 */
-		get_template_part( 'template-parts/content', get_post_format() );
-		?>
-	</div>
+		if ( 'product' === get_post_type() && function_exists( 'wc_get_template_part' ) ) {
+			wc_get_template_part( 'content', 'product' );
+			continue;
+		} ?>
+		<div class="grid__item  postcard">
+			<?php
+			/*
+			 * Include the Post-Format-specific template for the content.
+			 * If you want to override this in a child theme, then include a file
+			 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
+			 */
+			get_template_part( 'template-parts/content', get_post_format() ); ?>
+		</div>
 
 	<?php endwhile;
 } // end function listable_infinite_scroll_render

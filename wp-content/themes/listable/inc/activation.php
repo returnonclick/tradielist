@@ -154,7 +154,6 @@ if ( ! function_exists( 'listable_config_getting_active' ) ) :
 
 			// also at the first activation adjust a few settings for wp-job manager
 			update_option( 'job_manager_enable_categories', '1' );
-			update_option( 'job_manager_enable_default_category_multiselect', '1' );
 			update_option( 'job_manager_enable_tag_archive', '1' );
 			update_option( 'job_manager_tag_input', 'multiselect' );
 			update_option( 'job_manager_paid_listings_flow', 'before' );
@@ -209,17 +208,7 @@ if ( ! function_exists( 'listable_config_getting_active' ) ) :
 endif; // end listable_config_getting_active
 
 add_action( 'after_switch_theme', 'listable_config_getting_active' );
-add_action( 'admin_init', 'linit' );
 
-function linit() {
-
-	$sidebars = get_option( 'sidebars_widgets' );
-//	$listing_contet = get_option( 'widget_listing_content' );
-
-//	update_option( 'sidebars_widgets', array() );
-//	var_dump( $listing_contet );
-//	var_dump( $sidebars );
-}
 
 // pixtypes requires these things below for a pixelgrade theme
 // for the moment we'll shim them until we update pixtypes

@@ -11,7 +11,7 @@ $taxonomies = array();
 $data_output = '';
 $terms = get_the_terms(get_the_ID(), 'job_listing_type');
 $termString = '';
-if ( is_array($terms) || is_object($terms) ) {
+if ( ! is_wp_error( $terms ) && ( is_array( $terms ) || is_object( $terms ) ) ) {
 	$firstTerm = $terms[0];
 	if ( ! $firstTerm == NULL ) {
 		$term_id = $firstTerm->term_id;

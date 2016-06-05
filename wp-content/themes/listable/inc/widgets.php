@@ -761,7 +761,7 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 											<?php }
 										} ?>
 
-										<?php if ( is_array( $terms ) || is_object( $terms ) ) : ?>
+										<?php if ( ! is_wp_error( $terms ) && ( is_array( $terms ) || is_object( $terms ) ) ) : ?>
 
 											<ul class="card__tags">
 												<?php foreach ( $terms as $term ) {

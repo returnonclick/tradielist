@@ -1,6 +1,7 @@
 <?php
 /**
  * Product Loop Start
+ * Use the `posts-container` id to keep it compatible with infinite scroll
  *
  * @author 		WooThemes
  * @package 	WooCommerce/Templates
@@ -8,4 +9,4 @@
  */
 ?>
 <div class="postcards">
-	<div class="grid">
+	<div class="grid" id="posts-container">

@@ -34,6 +34,50 @@ if ( ! function_exists( 'listable_get_option' ) ) {
 	} //end function
 } // end if listable_get_option exists
 
+
+/**
+ * Function to display the logo added by the theme support 'custom-logo'.
+ * This was implemented in 4.5, to use the old logo install jetpack
+ */
+
+if ( ! function_exists( 'listable_display_logo' ) ) {
+	function listable_display_logo() {
+		// Display the inverted logo if all the requirements are met
+		$logo_invert = wp_get_attachment_image_src( listable_get_option('logo_invert') );
+		$header_transparent = listable_get_option( 'header_transparent' );
+		if ( $header_transparent && ! empty( $logo_invert[0] ) && is_page_template( 'page-templates/front_page.php' ) ) {
+			$html = sprintf( '<div class="site-branding  site-branding--image"><a href="%1$s" class="custom-logo-link  custom-logo-link--light" rel="home" itemprop="url">%2$s</a></div>',
+				esc_url( home_url( '/' ) ),
+				wp_get_attachment_image( listable_get_option('logo_invert'), 'full', false, array(
+					'class'    => 'custom-logo',
+					'itemprop' => 'logo',
+				) )
+			);
+
+			echo $html;
+		}
+		// or else display the regular logo
+		elseif ( function_exists( 'the_custom_logo' ) && has_custom_logo() ) {
+			// For transferring existing site logo from Jetpack -> Core
+			if ( ! get_theme_mod( 'custom_logo' ) && $jp_logo = get_option( 'site_logo' ) ) {
+				set_theme_mod( 'custom_logo', $jp_logo['id'] );
+				delete_option( 'site_logo' );
+			}
+
+			echo '<div class="site-branding  site-branding--image">';
+			the_custom_logo();
+			echo '</div>';
+		}
+		// or else display the text logo.
+		else { ?>
+			<div class="site-branding">
+				<h1 class="site-title  site-title--text"><a class="site-logo-link" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
+			</div><!-- .site-branding -->
+		<?php }
+	}
+}
+
+
 if ( ! function_exists( 'listable_posted_on' ) ) :
 	/**
 	 * Prints HTML with meta information for the current post-date/time and author.

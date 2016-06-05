@@ -7,7 +7,6 @@
  * @since  1.14.0
  */
 
-
 global $post;
 // get our custom meta
 //$facebook_url = get_post_meta( get_the_ID(), '_company_facebook', true);
@@ -27,6 +26,8 @@ $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 		<?php endif; ?>
 	<?php endif;
 
+	do_action( 'listable_single_job_listing_before_social_icons' );
+
 	if ( ! empty( $twitter ) ) {
 		$twitter = preg_replace("[@]", "", $twitter);
 		if ( strlen( $twitter ) > 30 ) : ?>
@@ -41,6 +42,8 @@ $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 		<!--a class="company_facebook"" href="<?php echo $facebook_url ?>"><?php _e( 'Facebook', 'listable'); ?></a-->
 	<?php }
 	 */
+	
+	do_action( 'listable_single_job_listing_after_social_icons' );
 
 	if ( $website = get_the_company_website() ) {
 		$website_pure = preg_replace('#^https?://#', '', rtrim(esc_url($website),'/'));

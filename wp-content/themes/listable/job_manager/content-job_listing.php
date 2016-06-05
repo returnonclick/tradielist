@@ -11,7 +11,7 @@ $taxonomies  = array();
 $terms       = get_the_terms( get_the_ID(), 'job_listing_category' );
 $termString  = '';
 $data_output = '';
-if ( is_array( $terms ) || is_object( $terms ) ) {
+if ( ! is_wp_error( $terms ) && ( is_array( $terms ) || is_object( $terms ) ) ) {
 	$firstTerm = $terms[0];
 	if ( ! $firstTerm == null ) {
 		$term_id = $firstTerm->term_id;
@@ -92,7 +92,7 @@ $listing_classes = apply_filters( 'listable_listing_archive_classes', $listing_c
 					</div>
 				<?php }
 
-				if ( is_array( $terms ) || is_object( $terms ) ) { ?>
+				if ( ! is_wp_error( $terms ) && ( is_array( $terms ) || is_object( $terms ) ) ) { ?>
 					<ul class="card__tags">
 						<?php foreach ( $terms as $term ) {
 							$icon_url = listable_get_term_icon_url( $term->term_id );

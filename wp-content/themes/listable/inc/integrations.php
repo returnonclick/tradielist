@@ -30,6 +30,14 @@ if ( class_exists( 'WP_Job_Manager_Job_Tags' ) ) {
 }
 
 /**
+ * Load WP Job Manager Field Editor compatibility file.
+ * https://plugins.smyl.es/wp-job-manager-field-editor
+ */
+if ( class_exists( 'WP_Job_Manager_Field_Editor' ) ) {
+	require get_template_directory() . '/inc/integrations/wp-job-manager-field-editor.php';
+}
+
+/**
  * Load FacetWP compatibility file.
  * https://facetwp.com/
  */
