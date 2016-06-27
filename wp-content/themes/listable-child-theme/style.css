@@ -145,3 +145,23 @@ h1 {
 .alignment{
 	text-align: left;
 }
+
+
+
+/* ---- Listing Page -------- */
+.page-add-listing fieldset:first-child{
+	background: transparent;
+	border: none;
+	font-size: 14px;
+	line-height: inherit;
+	padding: inherit;
+	position: inherit;
+	margin-top: -40px;
+}
+
+.page .entry-content {
+	padding-top: 0;
+}
+.page .entry-content h2 {
+	margin-bottom: 3.5rem;
+}
