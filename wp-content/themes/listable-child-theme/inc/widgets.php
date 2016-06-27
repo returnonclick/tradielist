@@ -187,9 +187,9 @@ class ROCFront_Page_Listing_Categories_Widget extends WP_Widget {
 
 											<?php listable_display_image( $icon_url, '', true, $attachment_id ); ?>
 
-											<span class="category-count">
-												<?php echo $term->count; ?>
-											</span>
+											<!-- <span class="category-count">
+												<?php //echo $term->count; ?> 
+											</span>	-->
 										</div>
 
 									<?php endif; ?>
