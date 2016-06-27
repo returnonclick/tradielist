@@ -20,7 +20,7 @@ class PixCustomifyPlugin {
 	 * @since   1.0.0
 	 * @const   string
 	 */
-	protected $version = '1.2.3';
+	protected $version = '1.2.4';
 	/**
 	 * Unique identifier for your plugin.
 	 * Use this value (not the variable name) as the text domain when internationalizing strings of text. It should
@@ -425,7 +425,8 @@ class PixCustomifyPlugin {
 		wp_enqueue_script( 'jquery-react', plugins_url( 'js/jquery-react.js', __FILE__ ), array( 'jquery' ), $this->version );
 		wp_enqueue_script( $this->plugin_slug . '-customizer-scripts', plugins_url( 'js/customizer.js', __FILE__ ), array(
 			'jquery',
-			'select2'
+			'select2',
+			'underscore',
 		), $this->version );
 
 		wp_localize_script( $this->plugin_slug . '-customizer-scripts', 'customify_settings', self::$localized );
@@ -694,7 +695,7 @@ class PixCustomifyPlugin {
 					$font['value'] = json_encode( $font['value'] );
 				}
 
-				$value = json_decode( wp_unslash( $font['value'] ), true );
+				$value = json_decode( wp_unslash( PixCustomifyPlugin::decodeURIComponent( $font['value'] ) ), true );
 
 				// in case the value is still null, try default value(mostly for google fonts)
 				if ( ! is_array( $value ) || $value === null ) {
@@ -787,7 +788,7 @@ class PixCustomifyPlugin {
 
 				if ( isset( $font['selector'] ) && isset( $font['value'] ) && ! empty( $font['value'] ) ) {
 
-					$value = json_decode( $font['value'], true );
+					$value = json_decode( PixCustomifyPlugin::decodeURIComponent( $font['value'] ), true );
 					// in case the value is still null, try default value(mostly for google fonts)
 					if ( $value === null ) {
 						$value = $this->get_font_defaults_value( $font['value'] );
@@ -803,37 +804,69 @@ class PixCustomifyPlugin {
 						$value = $this->process_a_not_associative_font_default( $value );
 					}
 
-					if ( isset( $value['font_family'] ) ) {
-						echo $font['selector'] . " {\n font-family: " . $value['font_family'] . ";";
+					$selected_variant = '';
+					if ( ! empty( $value['selected_variants'] ) ) {
+						if ( is_array( $value['selected_variants'] ) ) {
+							$selected_variant = $value['selected_variants'][0];
+						} else {
+							$selected_variant = $value['selected_variants'];
+						}
+					}
 
-						if ( isset( $value['selected_variants'] ) && ! $load_all_weights ) {
+					// First handle the case where we have the font-family in the selected variant (usually this means a custom font from our Fonto plugin)
+					if ( ! empty( $selected_variant ) && is_array( $selected_variant ) && ! empty( $selected_variant['font-family'] ) ) {
+						//the variant's font-family
+						echo $font['selector'] . " {\nfont-family: " . $selected_variant['font-family'] . ";\n";
 
-							if ( is_array( $value['selected_variants'] ) ) {
-								$the_weight = $value['selected_variants'][0];
-							} else {
-								$the_weight = $value['selected_variants'];
+						if ( ! $load_all_weights ) {
+							// if this is a custom font (like from our plugin Fonto) with individual styles & weights - i.e. the font-family says it all
+							// we need to "force" the font-weight and font-style
+							if ( ! empty( $value['type'] ) && 'custom_individual' == $value['type'] ) {
+								$selected_variant['font-weight'] = '400 !important';
+								$selected_variant['font-style'] = 'normal !important';
 							}
 
-							$italic_font = false;
-
-							if ( strpos( $the_weight, 'italic' ) !== false ) {
-								$the_weight = str_replace( 'italic', '', $the_weight);
-								$italic_font = true;
+							// output the font weight, if available
+							if ( ! empty( $selected_variant['font-weight'] ) ) {
+								echo "font-weight: " . $selected_variant['font-weight'] . ";\n";
 							}
 
-							if ( ! empty( $the_weight ) ) {
-								if($the_weight === 'regular') {
-									$the_weight = 'normal';
-								}
-								echo "\nfont-weight: " . $the_weight . ";\n";
-							}
-
-							if ( $italic_font ) {
-								echo "\nfont-style: italic;\n";
+							// output the font style, if available
+							if ( ! empty( $selected_variant['font-style'] ) ) {
+								echo "font-style: " . $selected_variant['font-style'] . ";\n";
 							}
 						}
 
-						echo "\n}\n";
+						echo "}\n";
+					} elseif ( isset( $value['font_family'] ) ) {
+						// the selected font family
+						echo $font['selector'] . " {\n font-family: " . $value['font_family'] . ";\n";
+
+						if ( ! empty( $selected_variant ) && ! $load_all_weights ) {
+							$weight_and_style = strtolower( $selected_variant );
+
+							$italic_font = false;
+
+							//determine if this is an italic font (the $weight_and_style is usually like '400' or '400italic' )
+							if ( strpos( $weight_and_style, 'italic' ) !== false ) {
+								$weight_and_style = str_replace( 'italic', '', $weight_and_style);
+								$italic_font = true;
+							}
+
+							if ( ! empty( $weight_and_style ) ) {
+								//a little bit of sanity check - in case it's not a number
+								if( $weight_and_style === 'regular' ) {
+									$weight_and_style = 'normal';
+								}
+								echo "font-weight: " . $weight_and_style . ";\n";
+							}
+
+							if ( $italic_font ) {
+								echo "font-style: italic;\n";
+							}
+						}
+
+						echo "}\n";
 					}
 				}
 			} ?>
@@ -1256,7 +1289,7 @@ class PixCustomifyPlugin {
 		}
 
 		$wp_customize->add_section( $section_id, $section_args );
-		$partials_array = array();
+
 		foreach ( $section_settings['options'] as $option_id => $option_config ) {
 
 			if ( empty( $option_id ) || ! isset( $option_config['type'] ) ) {
@@ -1266,13 +1299,7 @@ class PixCustomifyPlugin {
 			$option_id = $options_name . '[' . $option_id . ']';
 
 			$this->register_field( $section_id, $option_id, $option_config, $wp_customize );
-			$partials_array[] = $option_id;
 		}
-		$wp_customize->selective_refresh->add_partial( 'mymy_partial', array(
-			'selector' => 'body',
-			'settings' => $partials_array,
-			'render_callback' => 'do_nothing_jon_snow',
-		) );
 
 	}
 
@@ -1745,5 +1772,42 @@ class PixCustomifyPlugin {
 
 	function get_options_configs () {
 		return self::$options_list;
+	}
+
+	/**
+	 * Does the same thing the JS encodeURIComponent() does
+	 *
+	 * @param string $str
+	 *
+	 * @return string
+	 */
+	public static function encodeURIComponent( $str ) {
+		//if we get an array we just let it be
+		if ( is_string( $str ) ) {
+			$revert = array( '%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')' );
+
+			$str = strtr( rawurlencode( $str ), $revert );
+		} else {
+			var_dump('boooom');die;
+		}
+
+		return $str;
+	}
+
+	/**
+	 * Does the same thing the JS decodeURIComponent() does
+	 *
+	 * @param string $str
+	 *
+	 * @return string
+	 */
+	public static function decodeURIComponent( $str ) {
+		//if we get an array we just let it be
+		if ( is_string( $str ) ) {
+			$revert = array( '!' => '%21', '*' => '%2A', "'" => '%27', '(' => '%28', ')' => '%29' );
+			$str = rawurldecode( strtr( $str, $revert ) );
+		}
+
+		return $str;
 	}
 }
