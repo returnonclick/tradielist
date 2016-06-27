@@ -28,10 +28,12 @@
 
 		<?php get_template_part( 'template-parts/header-fields' ); ?>
 
+
+		<?php
+		// Output the navigation and mobile nav button only if there is a nav
+		if ( has_nav_menu( 'primary' ) || has_nav_menu( 'secondary') ): ?>
 		<button class="menu-trigger  menu--open  js-menu-trigger">
-
-			<?php get_template_part( 'assets/svg/menu-bars-svg' ); ?>
-
+		<?php get_template_part( 'assets/svg/menu-bars-svg' ); ?>
 		</button>
 		<nav id="site-navigation" class="menu-wrapper" role="navigation">
 			<button class="menu-trigger  menu--close  js-menu-trigger">
@@ -45,6 +47,7 @@
 				'container' => false,
 				'theme_location' => 'primary',
 				'menu_class' => 'primary-menu',
+				'fallback_cb' => false,
 				'walker' => new Listable_Walker_Nav_Menu(),
 			) );
 			wp_nav_menu( array(
@@ -56,6 +59,7 @@
 			) ); ?>
 
 		</nav>
+		<?php endif; ?>
 	</header><!-- #masthead -->
 
 	<div id="content" class="site-content">

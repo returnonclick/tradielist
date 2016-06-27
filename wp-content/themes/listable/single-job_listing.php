@@ -70,7 +70,10 @@ get_header(); ?>
 					<?php listable_entry_footer(); ?>
 				</footer><!-- .entry-footer -->
 
-			<?php } else {
+			<?php
+				listable_output_single_listing_icon();
+
+			} else {
 				echo '<div class="entry-content">';
 				echo get_the_password_form();
 				echo '</div>';

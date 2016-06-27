@@ -9403,9 +9403,9 @@ if (!Date.now)
             }
 
             if (typeof categories !== "undefined" && !categories.length) {
-                iconClass = 'pin pin--empty'
+                iconClass = 'pin pin--empty';
             } else {
-                iconClass = 'pin'
+                iconClass = 'pin';
             }
 
             var $icon = $('.selected-icon-svg'),
@@ -9413,7 +9413,11 @@ if (!Date.now)
                 $categories = $item.find('.category-icon'),
                 $tag, iconHTML = "<div class='" + iconClass + "'>" + $('.empty-icon-svg').html() + "</div>";
 
-            if ($tags.length) {
+            if ($body.is('.single-job_listing')) {
+                // If we are on a single listing
+                if ($('.single-listing-map-category-icon').length)
+                    iconHTML = "<div class='" + iconClass + "'>" + $icon.html() + "<div class='pin__icon'>" + $('.single-listing-map-category-icon').html() + "</div></div>";
+            } else if ($tags.length) {
                 $tag = $tags.first();
                 iconHTML = "<div class='" + iconClass + "'>" + $icon.html() + $tag.html() + "</div>";
             } else if ($categories.length) {
@@ -10317,15 +10321,6 @@ if (!Date.now)
 
             });
 
-            function checkAndHideForFacet() {
-                var windowPath = window.location.href;
-
-                if (windowPath.indexOf("fwp") > -1) {
-                    $('.listing_category_description').hide();
-                } else {
-                    $('.listing_category_description').show();
-                }
-            }
         } else {
             $('.job_listings').on('update_results', function() {
                 $('.listing_category_description.do-hide').hide();
@@ -10335,6 +10330,16 @@ if (!Date.now)
                 // (only after the initial 'update_results' event is triggered)
                 $('.listing_category_description').addClass('do-hide');
             });
+        }
+    }
+
+    function checkAndHideForFacet() {
+        var windowPath = window.location.href;
+
+        if (windowPath.indexOf("fwp") > -1) {
+            $('.listing_category_description').hide();
+        } else {
+            $('.listing_category_description').show();
         }
     }
 })(jQuery);

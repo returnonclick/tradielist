@@ -1005,7 +1005,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'css'     => array(
 								array(
 									'property' => 'background-color',
-									'selector' => '.front-page-section:nth-child(2n+1),
+									'selector' => '.front-page-section:nth-child(2n),
 										.blog, .archive, .woocommerce.archive,
 										.page-header, .page-header-background,
 										.single:not(.single-job_listing) .entry-featured, .page .entry-featured,

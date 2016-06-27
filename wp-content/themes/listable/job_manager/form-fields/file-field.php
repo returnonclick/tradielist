@@ -9,8 +9,12 @@ if ( ! empty( $field['ajax'] ) ) {
 	$classes[] = 'wp-job-manager-file-upload';
 } ?>
 <div class="job-manager-uploaded-files">
-	<?php if ( ! empty( $field['value'] ) ) : ?>
-		<?php if ( is_array( $field['value'] ) ) : ?>
+	<?php if ( ! empty( $field['value'] ) ) :
+		if ( isset( $field['value'][0] ) && is_array( $field['value'][0] )) : ?>
+			<?php foreach ( $field['value'][0] as $value ) : ?>
+				<?php get_job_manager_template( 'form-fields/uploaded-file-html.php', array( 'key' => $key, 'name' => 'current_' . $field_name, 'value' => $value, 'field' => $field ) ); ?>
+			<?php endforeach;
+		elseif ( is_array( $field['value'] ) ) : ?>
 			<?php foreach ( $field['value'] as $value ) : ?>
 				<?php get_job_manager_template( 'form-fields/uploaded-file-html.php', array( 'key' => $key, 'name' => 'current_' . $field_name, 'value' => $value, 'field' => $field ) ); ?>
 			<?php endforeach; ?>

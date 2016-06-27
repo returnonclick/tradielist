@@ -1191,3 +1191,54 @@ class Listable_Walker_Nav_Menu extends Walker_Nav_Menu {
 	}
 
 } //Listable_Walker_Nav_Menu
+
+/**
+ * Output an icon to be used in the Single Listing Map Widget
+ */
+function listable_output_single_listing_icon () {
+	global $post;
+
+	$the_term = null;
+
+	// Try to get a category icon
+	$cat_list = wp_get_post_terms(
+		$post->ID,
+		'job_listing_category',
+		array( 'fields' => 'all' )
+	);
+
+	if ( ! empty( $cat_list ) && ! is_wp_error( $cat_list ) ) {
+		foreach ( $cat_list as $term ) :
+			if ( listable_get_term_icon_url( $term->term_id ) ) {
+				$the_term = $term;
+				break;
+			}
+		endforeach;
+	}
+
+	// Else try to get a tag icon
+	if ( $the_term == null ) {
+		$tag_list = wp_get_post_terms(
+			$post->ID,
+			'job_listing_tag',
+			array( 'fields' => 'all' )
+		);
+
+		if ( ! empty( $tag_list ) && ! is_wp_error( $tag_list ) ) {
+			foreach ( $tag_list as $term ) :
+				if ( listable_get_term_icon_url( $term->term_id ) ) {
+					$the_term = $term;
+					break;
+				}
+			endforeach;
+		}
+	}
+
+	if( $the_term != null ) {
+		$icon_url      = listable_get_term_icon_url( $the_term->term_id );
+		$attachment_id = listable_get_term_icon_id( $the_term->term_id );
+		echo '<div class="single-listing-map-category-icon">';
+		listable_display_image( $icon_url, '', true, $attachment_id );
+		echo '</div>';
+	}
+}

@@ -5,7 +5,7 @@ Theme URI: https://pixelgrade.com/demos/listable/
 Author: PixelGrade
 Author URI: https://pixelgrade.com/
 Description: A directory WordPress theme that will help you create and manage a local or global listings site.
-Version: 1.7.0
+Version: 1.7.1
 License: Envato License
 License URI: http://themeforest.net/licenses/terms/regular
 Text Domain: listable
@@ -6271,7 +6271,7 @@ ul.job-manager-bookmark-actions a:focus,
 .front-page-section {
 	padding: 90px 0;
 }
-.front-page-section:nth-child(2n+1) {
+.front-page-section:nth-child(2n) {
 	background-color: #f9f9f9;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.075); 
 	border-top: 1px solid rgba(0, 0, 0, 0.075);
@@ -7501,13 +7501,13 @@ ul.secondary-menu a {
 ul.primary-menu a ._mi,
 ul.secondary-menu a ._mi {
 	line-height: inherit !important;
+	margin-top: -4px;
 }
 .primary-menu > ul a ._mi + span,
 .secondary-menu > ul a ._mi + span,
 ul.primary-menu a ._mi + span,
 ul.secondary-menu a ._mi + span {
 	display: inline-block;
-	vertical-align: middle;
 }
 .primary-menu > ul a ._mi._image,
 .secondary-menu > ul a ._mi._image,
@@ -8056,6 +8056,10 @@ ul.secondary-menu .menu-item-has-children > a:after,
 		padding-bottom: 12px; 
 		padding-top: 14px;
 	}
+	.primary-menu.secondary-menu > ul > li a,
+	ul.primary-menu.secondary-menu > li a {
+		height: 48px;
+	}
 	.primary-menu.secondary-menu > ul > li:not(.cta),
 	ul.primary-menu.secondary-menu > li:not(.cta) {
 		height: 48px;
@@ -8077,8 +8081,10 @@ ul.secondary-menu .menu-item-has-children > a:after,
 		top: auto;
 		width: auto;
 	}
-	.primary-menu.secondary-menu > ul > li :before,
-	ul.primary-menu.secondary-menu > li :before {
+	.primary-menu.secondary-menu > ul > li:before,
+	.primary-menu.secondary-menu > ul > li a:before,
+	ul.primary-menu.secondary-menu > li:before,
+	ul.primary-menu.secondary-menu > li a:before {
 		display: none;
 	}
 	.secondary-menu {
@@ -8716,7 +8722,7 @@ a.listing-contact {
 }
 @media only screen and (min-width: 480px) {
 	a.listing-contact {
-		padding: 0.75rem 0 0 0.75rem;
+		padding: 0.4375rem 0 0 0.75rem;
 	}
 }
 a.listing-contact:before {
@@ -13727,6 +13733,10 @@ p.comment-form-author {
 	display: none;
 }
 
+.single-listing-map-category-icon {
+	display: none;
+}
+
 /**
  *   6.3 - Listings page
  */
@@ -13981,9 +13991,6 @@ div.job_listings {
 	.page-template-front_page .header-content {
 		max-width: 1025px;
 	}
-	.is--ie .page-template-front_page .header-content {
-		width: 100%;
-	}
 }
 .is--ie9 .page-template-front_page .header-content {
 	display: table-cell;
@@ -14059,7 +14066,7 @@ div.job_listings {
 }
 
 .page-template-front_page .top-categories {
-	bottom: 32px;
+	bottom: 16px;
 	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-pack: center;
@@ -14073,6 +14080,7 @@ div.job_listings {
 }
 @media only screen and (min-width: 740px) {
 	.page-template-front_page .top-categories {
+		bottom: 32px;
 		padding: 0 32px;
 	}
 }
